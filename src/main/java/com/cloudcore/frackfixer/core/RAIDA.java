@@ -405,7 +405,7 @@ public class RAIDA {
         } catch (TimeoutException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-    }//end detect coin
+    }
 
     public CompletableFuture GetTicket(int i, int raidaID, int nn, int sn, String an, int d) {
         return CompletableFuture.supplyAsync(() -> {
@@ -416,7 +416,7 @@ public class RAIDA {
             }
             return null;
         });
-    }//end get ticket
+    }
 
     public CompletableFuture DetectCoin(CloudCoin coin, int milliSecondsToTimeOut) {
         try {
@@ -446,7 +446,7 @@ public class RAIDA {
         OnCoinDetected(de);
 
         return null;
-    }//end detect coin
+    }
 
     public int ReadyCount() {
         int ReadyCount = 0;

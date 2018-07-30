@@ -31,20 +31,20 @@ public class CoinUtils {
         this.cc = cc;
         for (int i = 0; i < 25; i++) {
             pans[i] = this.generatePan();
-        } // end for each pan
+        }
         edHex = "FF";//Max allowed.
         hp = 25;//Max allowed
         fileName = this.getDenomination() + ".CloudCoin." + cc.nn + "." + cc.getSn() + ".";
         json = "";
         jpeg = null;
-    }//end constructor
+    }
 
 
     //METHODS
 
     public CoinUtils() {
 
-    }//end constructor
+    }
 
     public String getPastStatus(int raida_id) {
         String returnString = "";
@@ -65,9 +65,9 @@ public class CoinUtils {
             case 'n':
                 returnString = "noresponse";
                 break;
-        }//end switch
+        }
         return returnString;
-    }//end getPastStatus
+    }
 
     public boolean setPastStatus(String status, int raida_id) {
 
@@ -88,10 +88,10 @@ public class CoinUtils {
             case "noresponse":
                 pownArray[raida_id] = 'n';
                 break;
-        }//end switch
+        }
         cc.pown = new String(pownArray);
         return true;
-    }//end set past status
+    }
 
     public String getFolder() {
         String returnString = "";
@@ -111,9 +111,9 @@ public class CoinUtils {
             case Trash:
                 returnString = "Trash";
                 break;
-        }//end switch
+        }
         return returnString;
-    }//end getPastStatus
+    }
 
     public boolean setFolder(String folderName) {
         boolean setGood = false;
@@ -133,9 +133,9 @@ public class CoinUtils {
             case "trash":
                 folder = Trash;
                 break;
-        }//end switch
+        }
         return setGood;
-    }//end set past status
+    }
 
     public int getDenomination() {
         int nom = 0;
@@ -156,7 +156,7 @@ public class CoinUtils {
         }
 
         return nom;
-    }//end get denomination
+    }
 
     public void calculateHP() {
         hp = 25;
@@ -166,7 +166,7 @@ public class CoinUtils {
                 this.hp--;
             }
         }
-    }//end calculate hp
+    }
 
     /*
             public String gradeCoin()
@@ -193,7 +193,7 @@ public class CoinUtils {
                     {
                         other++;
                     }
-                }// end if pass, fail or unknown
+                }
 
                 // Calculate passed
                 if (passed == 25)
@@ -292,9 +292,9 @@ public class CoinUtils {
                         otherDesc = "FAILED TO EVALUATE RAIDA HEALTH";
                         break;
                 }
-                // end RAIDA other errors and unknowns
+
                 return "\n " + passedDesc + " said Passed. " + "\n " + failedDesc + " said Failed. \n RAIDA Status: " + otherDesc;
-            }// end grade coin
+            }
     */
 
     /**
@@ -307,7 +307,7 @@ public class CoinUtils {
         LocalDate zeroDateee = LocalDate.of(2016, 8, 13);
         int monthsAfterZero = (int) (DAYS.between(expirationnnnDate, zeroDateee) / (365.25 / 12));
         this.edHex = String.format("0x%08X", monthsAfterZero);
-    }// end calc exp date
+    }
 
     /**
      * TODO: this code is identical to CloudCoin.generatePan().
@@ -336,7 +336,7 @@ public class CoinUtils {
                 failed++;
             } else {
                 other++;
-            }// end if pass, fail or unknown
+            }
         }
 
         // for each status
@@ -414,7 +414,7 @@ public class CoinUtils {
                 otherDesc = "FAILED TO EVALUATE RAIDA HEALTH";
                 break;
         }
-        // end RAIDA other errors and unknowns
+
         // Coin will go to bank, counterfeit or fracked
         if (other > 12) {
             // not enough RAIDA to have a quorum
@@ -434,13 +434,13 @@ public class CoinUtils {
         gradeStatus[1] = failedDesc;
         gradeStatus[2] = otherDesc;
         return this.gradeStatus;
-    }// end gradeStatus
+    }
 
     public void setAnsToPans() {
         for (int i = 0; (i < 25); i++) {
             this.pans[i] = cc.an.get(i);
-        }// end for 25 ans
-    }// end setAnsToPans
+        }
+    }
 
     public void setAnsToPansIfPassed() {
         setAnsToPansIfPassed(false);
@@ -460,7 +460,7 @@ public class CoinUtils {
                 // Just keep the ans and do not change. Hopefully they are not fracked.
             }
         }// for each guid in coin
-    }// end set ans to pans if passed
+    }
 
     public char[] consoleReport() {
         // Used only for console apps

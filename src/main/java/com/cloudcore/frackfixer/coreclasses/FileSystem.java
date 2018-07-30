@@ -285,15 +285,15 @@ public class FileSystem extends IFileSystem {
             for (int i = 0; (i < 25); i++)
             {
                 cloudCoinStr = cloudCoinStr + cloudCoin.an.get(i);
-            } // end for each an
+            }
 
             //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
             //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
             cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
             cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
             // for (int i =0; i < 25; i++) {
-            //     switch () { }//end switch pown char
-            // }//end for each pown
+            //     switch () { }
+            // }
             cloudCoinStr += "00"; // HC: Has comments. 00 = No
             cloudCoin.CalcExpirationDate();
             cloudCoinStr += cloudCoin.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)

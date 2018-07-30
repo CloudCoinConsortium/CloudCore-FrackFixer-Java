@@ -78,7 +78,7 @@ public class Utils {
             pos = str.indexOf(substr, (pos + 1));
         }
         return pos;
-    }//end ordinal Index of
+    }
 
 
     public static String GetHtmlFromURL(String urlAddress) {
@@ -103,5 +103,5 @@ public class Utils {
         }
 
         return data;
-    }//end get HTML
+    }
 }

@@ -108,7 +108,7 @@ public class Node {
                     get_ticketResponse.success = false;
                     HasTicket = false;
                     ticketHistory = TicketHistory.Failed;
-                }//end if
+                }
 
             } catch (Exception ex) {
                 get_ticketResponse.outcome = "error";
@@ -116,10 +116,10 @@ public class Node {
                 get_ticketResponse.success = false;
                 HasTicket = false;
                 ticketHistory = TicketHistory.Failed;
-            }//end try catch
+            }
             return get_ticketResponse.fullResponse;
         });
-    }//end get ticket
+    }
 
     public CompletableFuture<Response>  Echo() {
         return CompletableFuture.supplyAsync(() -> {
@@ -162,18 +162,18 @@ public class Node {
             //System.out.println("Echo Complete-Node No.-" + NodeNumber + ".Status-" + RAIDANodeStatus);
             return echoResponse;
         });
-    }//end detect
+    }
 
     public CompletableFuture<Response> Detect() {
         CloudCoin coin = RAIDA.GetInstance().coin;
         int nodeNumber = NodeNumber - 1; // TODO: understand why the node number changes with a cached CloudCoin.
 
         return Detect(coin, nodeNumber);
-    }//end detect
+    }
 
     public CompletableFuture<Response> Detect(CloudCoin coin) {
         return Detect(coin, NodeNumber);
-    }//end detect
+    }
 
     /**
      * Method DETECT
@@ -226,7 +226,7 @@ public class Node {
             }
             return detectResponse;
         });
-    }//end detect
+    }
 
     public void NewCoin() {
         HasTicket = false;
@@ -387,7 +387,7 @@ public class Node {
                         }
                     }
                 }).toCompletableFuture();
-    }//End multi detect
+    }
 
     /**
      * Method FIX
@@ -423,7 +423,7 @@ public class Node {
             fixResponse.success = false;
         }
         return fixResponse;
-    }//end fixit
+    }
 
 
     /**
@@ -465,7 +465,7 @@ public class Node {
                     get_ticketResponse.success = false;
                     HasTicket = false;
                     ticketHistory = TicketHistory.Failed;
-                }//end if
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -474,9 +474,9 @@ public class Node {
                 get_ticketResponse.success = false;
                 HasTicket = false;
                 ticketHistory = TicketHistory.Failed;
-            }//end try catch
+            }
             return get_ticketResponse;
         });
-    }//end get ticket
+    }
 
 }

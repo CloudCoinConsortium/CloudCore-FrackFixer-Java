@@ -92,9 +92,9 @@ public class Exporter
                         if (m250 > 0)
                         { this.qrCodeWriteOne(path, tag, bankFileName, frackedFileName, partialFileName); m250--; }
                         break;
-                }//end switch
+                }
 
-                if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)// end if file is needed to write jpeg
+                if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)
                 {
                     break;// Break if all the coins have been called for.
                 }
@@ -108,9 +108,9 @@ public class Exporter
             {
                 System.out.println(ioex);
                 //CoreLogger.Log(ioex.toString());
-            }//end catch
+            }
         }// for each 1 note
-    }//end write all jpegs
+    }
 
     public void writeBarCode417CodeFiles(int m1, int m5, int m25, int m100, int m250, String tag)
     {
@@ -175,9 +175,9 @@ public class Exporter
                         if (m250 > 0)
                         { this.barCode417WriteOne(path, tag, bankFileName, frackedFileName, partialFileName); m250--; }
                         break;
-                }//end switch
+                }
 
-                if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)// end if file is needed to write jpeg
+                if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)
                 {
                     break;// Break if all the coins have been called for.
                 }
@@ -191,9 +191,9 @@ public class Exporter
             {
                 System.out.println(ioex);
                 //CoreLogger.Log(ioex.toString());
-            }//end catch
+            }
         }// for each 1 note
-    }//end write all jpegs
+    }
 
     public void writeJPEGFiles(int m1, int m5, int m25, int m100, int m250, String tag)
     {
@@ -258,9 +258,9 @@ public class Exporter
                         if (m250 > 0)
                         { this.jpegWriteOne(path, tag, bankFileName, frackedFileName, partialFileName); m250--; }
                         break;
-                }//end switch
+                }
 
-                if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)// end if file is needed to write jpeg
+                if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)
                 {
                     break;// Break if all the coins have been called for.
                 }
@@ -274,9 +274,9 @@ public class Exporter
             {
                 System.out.println(ioex);
                 //CoreLogger.Log(ioex.toString());
-            }//end catch
+            }
         }// for each 1 note
-    }//end write all jpegs
+    }
 
     /* Write JSON to .stack File  */
     public boolean writeJSONFile(int m1, int m5, int m25, int m100, int m250, String tag)
@@ -354,7 +354,7 @@ public class Exporter
 
                 m1--;
                 // Get the clean JSON of the coin
-            }// end if coin is a 1
+            }
 
             if (denomination == "5" && m5 > 0)
             {
@@ -389,7 +389,7 @@ public class Exporter
                 }
 
                 m5--;
-            } // end if coin is a 5
+            }
 
             if (denomination == "25" && m25 > 0)
             {
@@ -424,7 +424,7 @@ public class Exporter
                 }
 
                 m25--;
-            }// end if coin is a 25
+            }
 
             if (denomination == "100" && m100 > 0)
             {
@@ -459,7 +459,7 @@ public class Exporter
                 }
 
                 m100--;
-            } // end if coin is a 100
+            }
 
             if (denomination == "250" && m250 > 0)
             {
@@ -494,13 +494,13 @@ public class Exporter
                 }
 
                 m250--;
-            }// end if coin is a 250
+            }
 
             if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)
             {
                 break;
             } // Break if all the coins have been called for.
-        }// end for each coin needed
+        }
 
         /*WRITE JSON TO FILE*/
         json = json + "\t] " + System.lineSeparator();
@@ -512,7 +512,7 @@ public class Exporter
             Random rnd = new Random();
             int tagrand = rnd.Next(999);
             filename = (this.fileSystem.ExportFolder + File.pathSeparator + totalSaved + ".CloudCoins." + tag + tagrand + ".stack");
-        }//end if file exists
+        }
 
         File.WriteAllText(filename, json);
         System.out.println("Writing to : ");
@@ -523,11 +523,11 @@ public class Exporter
         {
             // System.out.println("Deleting " + coinsToDelete[cc]);
             if (coinsToDelete[cc] != null) { File.Delete(coinsToDelete[cc]); }
-        }//end for all coins to delete
+        }
 
-        // end if write was good
+
         return jsonExported;
-    }//end write json to file
+    }
 
     public boolean writeJSONFile(int m1, int m5, int m25, int m100, int m250, String tag, int mode = 0, String backupDir = "")
     {
@@ -601,7 +601,7 @@ public class Exporter
 
                 m1--;
                 // Get the clean JSON of the coin
-            }// end if coin is a 1
+            }
 
             if (denomination == "5" && m5 > 0)
             {
@@ -636,7 +636,7 @@ public class Exporter
                 }
 
                 m5--;
-            } // end if coin is a 5
+            }
 
             if (denomination == "25" && m25 > 0)
             {
@@ -671,7 +671,7 @@ public class Exporter
                 }
 
                 m25--;
-            }// end if coin is a 25
+            }
 
             if (denomination == "100" && m100 > 0)
             {
@@ -706,7 +706,7 @@ public class Exporter
                 }
 
                 m100--;
-            } // end if coin is a 100
+            }
 
             if (denomination == "250" && m250 > 0)
             {
@@ -741,7 +741,7 @@ public class Exporter
                 }
 
                 m250--;
-            }// end if coin is a 250
+            }
 
             if (m1 == 0 && m5 == 0 && m25 == 0 && m100 == 0 && m250 == 0)
             {
@@ -749,7 +749,7 @@ public class Exporter
             } // Break if all the coins have been called for.
             String status = String.format("exported %d of %d coin.", i, bankedFileNames.length);
             int percentCompleted = (i + 1) * 100 / bankedFileNames.length;
-        }// end for each coin needed
+        }
 
         /*WRITE JSON TO FILE*/
         json = json + "\t] " + System.lineSeparator();
@@ -766,7 +766,7 @@ public class Exporter
             Random rnd = new Random();
             int tagrand = rnd.Next(999);
             filename = (this.fileSystem.ExportFolder + File.pathSeparator + totalSaved + ".CloudCoins." + tag + tagrand + ".stack");
-        }//end if file exists
+        }
 
         File.WriteAllText(filename, json);
         System.out.println("Writing to : ");
@@ -778,11 +778,11 @@ public class Exporter
             {
                 // System.out.println("Deleting " + coinsToDelete[cc]);
                 if (coinsToDelete[cc] != null) { File.Delete(coinsToDelete[cc]); }
-            }//end for all coins to delete
+            }
 
-        // end if write was good
+
         return jsonExported;
-    }//end write json to file
+    }
 
 
     /* PRIVATE METHODS */
@@ -797,7 +797,7 @@ public class Exporter
                 //var barcode = new Barcode(json, Settings.Default);
                 //barcode.Canvas.SaveBmp(jpgCoin.FileName+".jpg");
                 File.Delete(bankFileName);//Delete the files if they have been written to
-            }//end if write was good.
+            }
         }
         else if (File.Exists(partialFileName))//If the file is a bank file, export a good bank coin
         {
@@ -805,7 +805,7 @@ public class Exporter
             if (this.fileSystem.writeQrCode(jpgCoin, tag))//If the jpeg writes successfully
             {
                 File.Delete(partialFileName);//Delete the files if they have been written to
-            }//end if write was good.
+            }
         }
         else//Export a fracked coin.
         {
@@ -813,9 +813,9 @@ public class Exporter
             if (this.fileSystem.writeQrCode(jpgCoin, tag))
             {
                 File.Delete(frackedFileName);//Delete the files if they have been written to
-            }//end if
-        }//end else
-    }//End write one jpeg
+            }
+        }
+    }
 
     private void barCode417WriteOne(String path, String tag, String bankFileName, String frackedFileName, String partialFileName)
     {
@@ -828,7 +828,7 @@ public class Exporter
                 //var barcode = new Barcode(json, Settings.Default);
                 //barcode.Canvas.SaveBmp(jpgCoin.FileName+".jpg");
                 File.Delete(bankFileName);//Delete the files if they have been written to
-            }//end if write was good.
+            }
         }
         else if (File.Exists(partialFileName))//If the file is a bank file, export a good bank coin
         {
@@ -836,7 +836,7 @@ public class Exporter
             if (this.fileSystem.writeBarCode(jpgCoin, tag))//If the jpeg writes successfully
             {
                 File.Delete(partialFileName);//Delete the files if they have been written to
-            }//end if write was good.
+            }
         }
         else//Export a fracked coin.
         {
@@ -844,9 +844,9 @@ public class Exporter
             if (this.fileSystem.writeBarCode(jpgCoin, tag))
             {
                 File.Delete(frackedFileName);//Delete the files if they have been written to
-            }//end if
-        }//end else
-    }//End write one jpeg
+            }
+        }
+    }
 
 
     /* PRIVATE METHODS */
@@ -858,7 +858,7 @@ public class Exporter
             if (this.fileSystem.writeJpeg(jpgCoin, tag))//If the jpeg writes successfully
             {
                 File.Delete(bankFileName);//Delete the files if they have been written to
-            }//end if write was good.
+            }
         }
         else if (File.Exists(partialFileName))//If the file is a bank file, export a good bank coin
         {
@@ -866,7 +866,7 @@ public class Exporter
             if (this.fileSystem.writeJpeg(jpgCoin, tag))//If the jpeg writes successfully
             {
                 File.Delete(partialFileName);//Delete the files if they have been written to
-            }//end if write was good.
+            }
         }
         else//Export a fracked coin.
         {
@@ -874,7 +874,7 @@ public class Exporter
             if (this.fileSystem.writeJpeg(jpgCoin, tag))
             {
                 File.Delete(frackedFileName);//Delete the files if they have been written to
-            }//end if
-        }//end else
-    }//End write one jpeg
-}// end exporter class
+            }
+        }
+    }
+}

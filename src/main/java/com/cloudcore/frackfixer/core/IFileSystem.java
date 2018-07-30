@@ -257,7 +257,7 @@ public abstract class IFileSystem {
             System.out.println("IO Exception:" + fileName + ioex);
             ioex.printStackTrace();
             //CoreLogger.Log("IO Exception:" + fileName + ioex);
-        }// end try catch
+        }
         return null;
     }
 
@@ -311,7 +311,7 @@ public abstract class IFileSystem {
         }
 
         return returnCC;
-    }//end load one CloudCoin from JSON
+    }
 
     public void MoveFile(String SourcePath, String TargetPath, FileMoveOptions options) {
         try {
@@ -347,7 +347,7 @@ public abstract class IFileSystem {
         }
 
         return jsonData;
-    }//end importJSON
+    }
 
     // en d json test
     public String setJSON(CloudCoin cc) {
@@ -363,15 +363,15 @@ public abstract class IFileSystem {
                 json += quote + "," + System.lineSeparator() + tab + tab + tab + quote; //",
             } else if (i == 24) {
                 // json += "\""; last one do nothing
-            } else { // end if is line break
+            } else {
                 json += quote + ", " + quote;
             }
 
-            // end else
-        }// end for 25 ans
+
+        }
 
         json += quote + "]," + System.lineSeparator();//"],
-        // End of ans
+
         //CoinUtils cu = new CoinUtils(cc);
         //cu.calcExpirationDate();
         cc.CalcExpirationDate();
@@ -385,7 +385,7 @@ public abstract class IFileSystem {
         // Keep expiration date when saving (not a truley accurate but good enought )
         return json;
     }
-    // end get JSON
+
 
     public abstract void MoveImportedFiles();
 
@@ -632,15 +632,15 @@ public abstract class IFileSystem {
         for (int i = 0; (i < 25); i++)
         {
             cloudCoinStr = cloudCoinStr + cc.an.get(i);
-        } // end for each an
+        }
 
         //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
         //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
         cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
         cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
         // for (int i =0; i < 25; i++) {
-        //     switch () { }//end switch pown char
-        // }//end for each pown
+        //     switch () { }
+        // }
         cloudCoinStr += "00"; // HC: Has comments. 00 = No
         cc.CalcExpirationDate();
         cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
@@ -670,7 +670,7 @@ public abstract class IFileSystem {
             case 25: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg25.jpg"); break;
             case 100: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg100.jpg"); break;
             case 250: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg250.jpg"); break;
-        }// end switch
+        }
 
 
         // WRITE THE SERIAL NUMBER ON THE JPEG //
@@ -723,7 +723,7 @@ public abstract class IFileSystem {
         return fileSavedSuccessfully;
         */
         return false;
-    }//end write JPEG
+    }
 
     public boolean writeJpeg(CloudCoin cc, String tag, String filePath) {
             /* TODO: Deal with JPEG
@@ -738,15 +738,15 @@ public abstract class IFileSystem {
         for (int i = 0; (i < 25); i++)
         {
             cloudCoinStr = cloudCoinStr + cc.an.get(i);
-        } // end for each an
+        }
 
         //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
         //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
         cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
         cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
         // for (int i =0; i < 25; i++) {
-        //     switch () { }//end switch pown char
-        // }//end for each pown
+        //     switch () { }
+        // }
         cloudCoinStr += "00"; // HC: Has comments. 00 = No
         cc.CalcExpirationDate();
         cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
@@ -824,7 +824,7 @@ public abstract class IFileSystem {
         return fileSavedSuccessfully;
         */
         return false;
-    }//end write JPEG
+    }
 
     public boolean writeJpeg(CloudCoin cc, String tag, String filePath, String targetPath) {
             /* TODO: Deal with JPEG
@@ -839,15 +839,15 @@ public abstract class IFileSystem {
         for (int i = 0; (i < 25); i++)
         {
             cloudCoinStr = cloudCoinStr + cc.an.get(i);
-        } // end for each an
+        }
 
         //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
         //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
         cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
         cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
         // for (int i =0; i < 25; i++) {
-        //     switch () { }//end switch pown char
-        // }//end for each pown
+        //     switch () { }
+        // }
         cloudCoinStr += "00"; // HC: Has comments. 00 = No
         cc.CalcExpirationDate();
         cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
@@ -925,7 +925,7 @@ public abstract class IFileSystem {
         return fileSavedSuccessfully;
         */
         return false;
-    }//end write JPEG
+    }
 
     public boolean writeJpeg(CloudCoin cc, String tag, String filePath, String targetPath, String printMessage) {
             /* TODO: Deal with JPEG
@@ -940,15 +940,15 @@ public abstract class IFileSystem {
         for (int i = 0; (i < 25); i++)
         {
             cloudCoinStr = cloudCoinStr + cc.an[i];
-        } // end for each an
+        }
 
         //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
         //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
         cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
         cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
         // for (int i =0; i < 25; i++) {
-        //     switch () { }//end switch pown char
-        // }//end for each pown
+        //     switch () { }
+        // }
         cloudCoinStr += "00"; // HC: Has comments. 00 = No
         cc.CalcExpirationDate();
         cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
@@ -1026,7 +1026,7 @@ public abstract class IFileSystem {
         return fileSavedSuccessfully;
         */
         return false;
-    }//end write JPEG*/
+    }
 
 
     public String bytesToHexString(@Snippet.NonNullParameter byte[] data) {
@@ -1039,14 +1039,14 @@ public abstract class IFileSystem {
             hex[index + 1] = GetHexValue(num2 % 0x10);
         }
         return new String(hex);
-    }//End NewConverted//
+    }
 
     private char GetHexValue(int i) {
         if (i < 10) {
             return (char) (i + 0x30);
         }
         return (char) ((i - 10) + 0x41);
-    }//end GetHexValue
+    }
 
     /* Writes a JPEG To the Export Folder */
 
@@ -1058,7 +1058,7 @@ public abstract class IFileSystem {
             e.printStackTrace();
         }
         return null;
-    }//end read all bytes
+    }
 
     public boolean writeTo(String folder, CloudCoin cc) {
         //CoinUtils cu = new CoinUtils(cc);
@@ -1089,7 +1089,7 @@ public abstract class IFileSystem {
                     System.out.println(cc.FileName() + ".stack" + " already exists in the folder " + folder);
                     //CoreLogger.Log(cu.fileName + ".stack" + " already exists in the folder " + folder);
                     return alreadyExists;
-                }//end else
+                }
             }//File Exists
             // TODO: Should not write text twice
             Files.write(Paths.get(folder + cc.FileName() + ".stack"), wholeJson.getBytes(StandardCharsets.UTF_8));
@@ -1100,7 +1100,7 @@ public abstract class IFileSystem {
             return false;
         }
 
-    }//End Write To
+    }
 
     public void overWrite(String folder, CloudCoin cc) {
         //CoinUtils cu = new CoinUtils(cc);
@@ -1118,7 +1118,7 @@ public abstract class IFileSystem {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }//End Overwrite
+    }
 
     public CloudCoin loadOneCloudCoinFromJPEGFile(String loadFilePath) {
         /* GET the first 455 bytes of he jpeg where the coin is located */
@@ -1142,7 +1142,7 @@ public abstract class IFileSystem {
         CloudCoin returnCC = this.parseJpeg(wholeString);
         // System.out.println("From FileUtils returnCC.fileName " + returnCC.fileName);
         return returnCC;
-    }//end load one CloudCoin from JSON
+    }
 
     public CloudCoin parseJpeg(String wholeString) {
 
@@ -1155,7 +1155,7 @@ public abstract class IFileSystem {
             startAn += 32;
         }
 
-        // end for
+
         cc.aoid = null;
         // wholeString.substring( 840, 895 );
         //cc.hp = 25;
@@ -1167,7 +1167,7 @@ public abstract class IFileSystem {
         cc.pown = "uuuuuuuuuuuuuuuuuuuuuuuuu";
         //  System.out.println("parseJpeg cc.fileName " + cc.fileName);
         return cc;
-    }// end parse Jpeg
+    }
 
     // en d json test
     public byte[] hexStringToByteArray(String HexString) {
@@ -1177,5 +1177,5 @@ public abstract class IFileSystem {
             bytes[i / 2] = Byte.valueOf(HexString.substring(i, 2), 16);
         }
         return bytes;
-    }//End hex String to byte array
+    }
 }

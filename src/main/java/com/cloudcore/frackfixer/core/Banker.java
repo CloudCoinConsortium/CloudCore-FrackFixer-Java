@@ -41,10 +41,10 @@ public class Banker {
                     returnCounts[5]++;
                     break;
             }
-            // end switch
+
         }
 
-        // end for each coin
+
         return returnCounts;
     }
 }

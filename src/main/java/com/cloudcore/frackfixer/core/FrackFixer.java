@@ -1,6 +1,7 @@
 package com.cloudcore.frackfixer.core;
 
 import com.cloudcore.frackfixer.coreclasses.FileSystem;
+import com.cloudcore.frackfixer.utils.SimpleLogger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,25 +9,34 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Frack_Fixer {
+public class FrackFixer {
+
+
     /* INSTANCE VARIABLES */
+
+    public static SimpleLogger logger;
+
     private IFileSystem fileUtils;
+    private RAIDA raida;
+
     private int totalValueToBank;
     private int totalValueToFractured;
     private int totalValueToCounterfeit;
-    private RAIDA raida;
+
     public boolean continueExecution = true;
     public boolean IsFixing = false;
 
+
     /* CONSTRUCTORS */
-    public Frack_Fixer(IFileSystem fileUtils, int timeout) {
+
+    public FrackFixer(IFileSystem fileUtils, int timeout) {
 
         this.fileUtils = fileUtils;
         raida = RAIDA.GetInstance();
         totalValueToBank = 0;
         totalValueToCounterfeit = 0;
         totalValueToFractured = 0;
-    }//constructor
+    }
 
     public String fixOneGuidCorner(int raida_ID, CloudCoin cc, int corner, int[] trustedTriad) {
         //RAIDA raida = RAIDA.GetInstance();
@@ -78,7 +88,7 @@ public class Frack_Fixer {
                         System.out.println("");
                         //Console.ForegroundColor = ConsoleColor.White;
                         return "RAIDA failed to accept tickets on corner " + corner;
-                    }//end if fix respons was success or fail
+                    }
                 } else {
                     //Console.ForegroundColor = ConsoleColor.Red;
                     System.out.println("");
@@ -90,8 +100,8 @@ public class Frack_Fixer {
                     //Console.ForegroundColor = ConsoleColor.White;
 
                     return "Trusted servers failed to provide tickets for corner " + corner;//no three good tickets
-                }//end if all good
-            }//end if trused triad will echo and detect (Detect is used to get ticket)
+                }
+            }
 
             //Console.ForegroundColor = ConsoleColor.Red;
             System.out.println("");
@@ -103,12 +113,13 @@ public class Frack_Fixer {
             System.out.println("");
             //Console.ForegroundColor = ConsoleColor.White;
             return "One or more of the trusted triad will not echo and detect. So not trying.";
-        }//end if RAIDA fails to fix.
+        }
 
-    }//end fix one
+    }
 
 
     /* PUBLIC METHODS */
+
     public int[] FixAll() {
         IsFixing = true;
         continueExecution = true;
@@ -121,14 +132,8 @@ public class Frack_Fixer {
         pge.MajorProgressMessage = "Starting Frack Fixing";
         raida.OnLogRecieved(pge);
 
-        //CoinUtils cu = new CoinUtils(frackedCC);
-        if (frackedFiles.length < 0) {
-            //Console.ForegroundColor = ConsoleColor.Green;
-            System.out.println("You have no fracked coins.");
-            //CoreLogger.Log("You have no fracked coins.");
-            //Console.ForegroundColor = ConsoleColor.White;
-        }//no coins to unfrack
-
+        if (frackedFiles.length < 0)
+            updateLog("You have no fracked coins.");
 
         for (int i = 0; i < frackedFiles.length; i++) {
             if (!continueExecution) {
@@ -187,7 +192,7 @@ public class Frack_Fixer {
                         //CoreLogger.Log("CloudCoin was moved back to Fraked folder.");
                         break;
                 }
-                // end switch on the place the coin will go
+
                 System.out.println("...................................");
                 pge.MajorProgressMessage = "...................................";
                 raida.OnLogRecieved(pge);
@@ -203,8 +208,8 @@ public class Frack_Fixer {
                 System.out.println(ioex);
                 //CoreLogger.Log(ioex.toString());
                 //Console.ForegroundColor = ConsoleColor.White;
-            } // end try catch
-        }// end for each file name that is fracked
+            }
+        }
 
         results[0] = this.totalValueToBank;
         results[1] = this.totalValueToCounterfeit; // System.out.println("Counterfeit and Moved to trash: "+totalValueToCounterfeit);
@@ -219,9 +224,9 @@ public class Frack_Fixer {
             raida.OnLogRecieved(pge);
 
         return results;
-    }// end fix all
+    }
 
-    // End select all file names in a folder
+
     public boolean deleteCoin(String path) {
         // System.out.println("Deleteing Coin: "+path + this.fileName + extension);
         try {
@@ -232,7 +237,7 @@ public class Frack_Fixer {
             //  CoreLogger.Log(e.toString());
         }
         return true;
-    }//end delete coin
+    }
 
 
     public CoinUtils fixCoin(CloudCoin brokeCoin) {
@@ -302,9 +307,9 @@ public class Frack_Fixer {
                         corner++;
                         fixer.setCornerToCheck(corner);
                     }
-                }//End whild fixer not finnished
-            }//end if RAIDA past status is passed and does not need to be fixed
-        }//end for each AN
+                }
+            }
+        }
 
         for (int raida_ID = 24; raida_ID > 0; raida_ID--) {
             //  System.out.println("Past Status for " + raida_ID + ", " + brokeCoin.pastStatus[raida_ID]);
@@ -345,9 +350,9 @@ public class Frack_Fixer {
                         corner++;
                         fixer.setCornerToCheck(corner);
                     }
-                }//End whild fixer not finnished
-            }//end if RAIDA past status is passed and does not need to be fixed
-        }//end for each AN
+                }
+            }
+        }
         long after = System.currentTimeMillis();
         long ts = after - before;
         System.out.println("Time spent fixing RAIDA in milliseconds: " + ts);
@@ -361,6 +366,10 @@ public class Frack_Fixer {
         cu.grade();
         cu.calcExpirationDate();
         return cu;
-    }// end fix coin
+    }
 
-}//end class
+    public void updateLog(String message) {
+        System.out.println(message);
+        logger.Info(message);
+    }
+}

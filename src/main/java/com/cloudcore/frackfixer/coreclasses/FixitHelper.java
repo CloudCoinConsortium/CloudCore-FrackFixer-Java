@@ -52,7 +52,7 @@ class FixitHelper
         currentAns = ans1;
 
 
-    }// end of constructor
+    }
 
     private Node[] getTrustedServers(int raidaNumber)
     {
@@ -96,8 +96,8 @@ class FixitHelper
                 this.finnished = true;
                 break;
         }
-        // end switch
-    }//end set corner to check
+
+    }
 
     /***
      * This changes the Triads that will be used
@@ -130,7 +130,7 @@ class FixitHelper
             default:
                 this.finnished = true;
                 break;
-        }//end switch
-    }//End fix Guid
+        }
+    }
 
 }
