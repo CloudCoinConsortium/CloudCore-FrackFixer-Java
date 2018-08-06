@@ -8,8 +8,4 @@ public class DetectEventArgs {
     public DetectEventArgs(CloudCoin coin) {
         this.detectedCoin = coin;
     }
-
-    public CloudCoin DetectedCoin() {
-        return detectedCoin;
-    }
 }

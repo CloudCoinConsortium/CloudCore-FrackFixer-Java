@@ -3,7 +3,6 @@ package com.cloudcore.frackfixer.core;
 import com.cloudcore.frackfixer.Formats;
 import com.cloudcore.frackfixer.utils.FileUtils;
 import com.google.gson.Gson;
-import org.graalvm.compiler.api.replacements.Snippet;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -1029,7 +1028,7 @@ public abstract class IFileSystem {
     }
 
 
-    public String bytesToHexString(@Snippet.NonNullParameter byte[] data) {
+    public String bytesToHexString(byte[] data) {
         int length = data.length;
         char[] hex = new char[length * 2];
         int num1 = 0;
