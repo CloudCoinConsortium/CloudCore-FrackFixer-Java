@@ -1,5 +1,6 @@
 package com.cloudcore.frackfixer.core;
 
+@SuppressWarnings({"ALL", "unused"})
 public class Response {
 
 
@@ -8,14 +9,6 @@ public class Response {
     public boolean success;
     public String outcome;
     public int milliseconds;
-
-    public Response(boolean success, String outcome, int milliseconds, String fullRequest, String fullResponse) {
-        this.success = success;
-        this.outcome = outcome;
-        this.milliseconds = milliseconds;
-        this.fullRequest = fullRequest;
-        this.fullResponse = fullResponse;
-    }
 
     public Response() {
         this.success = false;

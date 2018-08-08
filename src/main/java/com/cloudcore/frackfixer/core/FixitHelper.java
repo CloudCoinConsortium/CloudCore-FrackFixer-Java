@@ -105,7 +105,7 @@ public class FixitHelper {
                 this.trustedServers = new int[]{18, 19, 20, 23, 0, 3, 4, 5};
                 break;
         }
-
+        // end switch raidaNumber
         this.trustedTriad1 = new int[]{this.trustedServers[0], this.trustedServers[1], this.trustedServers[3]};
         this.trustedTriad2 = new int[]{this.trustedServers[1], this.trustedServers[2], this.trustedServers[4]};
         this.trustedTriad3 = new int[]{this.trustedServers[3], this.trustedServers[5], this.trustedServers[6]};
@@ -119,7 +119,7 @@ public class FixitHelper {
         ans4 = new String[]{ans[trustedTriad4[0]], ans[trustedTriad4[1]], ans[trustedTriad4[2]]};
 
         currentAns = ans1;
-    }
+    }// end of constructor
 
 
     public void setCornerToCheck(int corner) {
@@ -144,8 +144,8 @@ public class FixitHelper {
                 this.finished = true;
                 break;
         }
-
-    }
+        // end switch
+    }//end set corner to check
 
     /***
      * This changes the Triads that will be used
@@ -176,7 +176,7 @@ public class FixitHelper {
             default:
                 this.finished = true;
                 break;
-        }
-    }
+        }//end switch
+    }//End fix Guid
 
 }

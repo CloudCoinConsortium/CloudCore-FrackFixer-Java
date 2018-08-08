@@ -1,263 +1,209 @@
 package com.cloudcore.frackfixer.core;
 
-import com.cloudcore.frackfixer.Formats;
+import com.cloudcore.frackfixer.utils.CoinUtils;
 import com.cloudcore.frackfixer.utils.FileUtils;
+import com.cloudcore.frackfixer.utils.Utils;
 import com.google.gson.Gson;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public abstract class IFileSystem {
 
-    public enum FileMoveOptions {Copy, Replace, Rename, Skip}
+
+    /* Fields */
 
     public String RootPath;
-    public String ImportFolder;
-    public String ExportFolder;
-    public String BankFolder;
-    public String ImportedFolder;
-    public String LostFolder;
-    public String TrashFolder;
-    public String SuspectFolder;
-    public String DetectedFolder;
-    public String FrackedFolder;
-    public String TemplateFolder;
-    public String PartialFolder;
-    public String CounterfeitFolder;
-    public String LanguageFolder;
-    public String PreDetectFolder;
-    public String RequestsFolder;
-    public String DangerousFolder;
-    public String LogsFolder;
-    public String QRFolder;
-    public String BarCodeFolder;
-    public String CSVFolder;
 
-    //public abstract IFileSystem(String path);
+    public String ImportFolder;
+    public String DetectedFolder;
+    public String SuspectFolder;
+    public String ExportFolder;
+
+    public String CounterfeitFolder;
+    public String BankFolder;
+    public String FrackedFolder;
+    public String LostFolder;
+
+    public String TemplateFolder;
+    public String LogsFolder;
 
     public static ArrayList<CloudCoin> importCoins;
-    public static ArrayList<CloudCoin> exportCoins;
-    public static ArrayList<CloudCoin> importedCoins;
-    // TODO: public static ArrayList<FileInfo> templateFiles;
-    public static ArrayList<CloudCoin> languageCoins;
-    public static ArrayList<CloudCoin> counterfeitCoins;
-    public static ArrayList<CloudCoin> partialCoins;
-    public static ArrayList<CloudCoin> frackedCoins;
-    public static ArrayList<CloudCoin> detectedCoins;
-    public static ArrayList<CloudCoin> suspectCoins;
-    public static ArrayList<CloudCoin> trashCoins;
-    public static ArrayList<CloudCoin> bankCoins;
-    public static ArrayList<CloudCoin> lostCoins;
     public static ArrayList<CloudCoin> predetectCoins;
-    public static ArrayList<CloudCoin> dangerousCoins;
 
-    public abstract boolean CreateFolderStructure();
+    public static ArrayList<CloudCoin> bankCoins;
+    public static ArrayList<CloudCoin> frackedCoins;
 
-    public abstract void LoadFileSystem();
+    public abstract void loadFileSystem();
 
-    public abstract void ClearCoins(String FolderName);
+    public abstract void detectPreProcessing();
 
-    public ArrayList<CloudCoin> LoadCoinsByFormat(String folder, Formats format) {
+
+    /* Methods */
+
+    /**
+     * Load all CloudCoins in a specific folder.
+     *
+     * @param folder the folder to search for CloudCoin files.
+     * @return an ArrayList of all CloudCoins in the specified folder.
+     */
+    public ArrayList<CloudCoin> loadFolderCoins(String folder) {
         ArrayList<CloudCoin> folderCoins = new ArrayList<>();
-        CloudCoin coin;
 
-        String allowedExtension = "";
-        switch (format) {
-            case CSV:
-                allowedExtension = "csv";
-                break;
-            case BarCode:
-            case QRCode:
-                allowedExtension = "jpg";
-                break;
-        }
-
-        String[] fileNames = FileUtils.selectFileNamesInFolder(folder);
+        String[] filenames = FileUtils.selectFileNamesInFolder(folder);
         String extension;
-        for (String fileName : fileNames) {
-            int index = fileName.lastIndexOf('.');
-            if (index > 0) {
-                extension = fileName.substring(index + 1);
+        for (int i = 0, length = filenames.length; i < length; i++) {
+            int index = filenames[i].lastIndexOf('.');
+            if (index == -1) continue;
 
-                if (allowedExtension.equalsIgnoreCase(extension)) {
-                    switch (format) {
-                        case CSV:
-                            ArrayList<CloudCoin> csvCoins = ReadCSVCoins(fileName);
-                            csvCoins.remove(null);
-                            folderCoins.addAll(csvCoins);
-                            break;
-                        case BarCode:
-                            //  TODO: Deal with Barcode
-                            //coin = ReadBARCode(fileName);
-                            //folderCoins.add(coin);
-                            break;
-                        case QRCode:
-                            //  TODO: Deal with QR Code
-                            //coin = ReadQRCode(fileName);
-                            //folderCoins.add(coin);
-                            break;
+            extension = filenames[i].substring(index + 1);
+            String fullFilePath = folder + filenames[i];
+
+            switch (extension) {
+                //case "celeb":
+                //case "celebrium":
+                case "stack":
+                    ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromStack(fullFilePath);
+                    folderCoins.addAll(coins);
+                    break;
+                case "jpg":
+                case "jpeg":
+                    CloudCoin coin = importJPG(fullFilePath);
+                    folderCoins.add(coin);
+                    break;
+                case "csv":
+                    ArrayList<String> lines;
+                    try {
+                        ArrayList<CloudCoin> csvCoins = new ArrayList<>();
+                        lines = new ArrayList<>(Files.readAllLines(Paths.get(fullFilePath)));
+                        for (String line : lines)
+                            csvCoins.add(CloudCoin.fromCsv(line, filenames[i]));
+                        csvCoins.remove(null);
+                        folderCoins.addAll(csvCoins);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                }
+                    break;
             }
         }
 
         return folderCoins;
     }
 
-    public ArrayList<CloudCoin> LoadFolderBarCodes(String folder) {
-        ArrayList<CloudCoin> folderCoins = new ArrayList<>();
-
-        return folderCoins;
-    }
-
-    public ArrayList<CloudCoin> LoadFolderCoins(String folder) {
-        ArrayList<CloudCoin> folderCoins = new ArrayList<>();
-
-        String[] fileNames = FileUtils.selectFileNamesInFolder(folder);
-        String extension;
-        for (String fileName : fileNames) {
-            int index = fileName.lastIndexOf('.');
-            if (index > 0) {
-                extension = fileName.substring(index + 1);
-
-                switch (extension) {
-                    case "celeb":
-                    case "celebrium":
-                    case "stack":
-                        ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromJSON(fileName);
-                        if (coins != null)
-                            folderCoins.addAll(coins);
-                        break;
-                    case "jpg":
-                    case "jpeg":
-                        CloudCoin coin = importJPEG(fileName);
-                        folderCoins.add(coin);
-                        break;
-                    case "csv":
-                        ArrayList<String> lines = null;
-                        try {
-                            ArrayList<CloudCoin> csvCoins = new ArrayList<>();
-                            lines = new ArrayList<>(Files.readAllLines(Paths.get(fileName)));
-                            for (String line : lines) {
-                                csvCoins.add(CloudCoin.FromCSV(line));
-                            }
-                            csvCoins.remove(null);
-                            folderCoins.addAll(csvCoins);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                }
-            }
-        }
-
-        return folderCoins;
-    }
-
-    private CloudCoin ReadQRCode(String fileName)//Read a CloudCoin from QR Code 
-    {
-        /*  TODO: Deal with QR Code
-        CloudCoin coin = new CloudCoin();
-
-        try
-        {
-            Bitmap bitmap = new Bitmap(fileName);
-            BarcodeReader reader = new BarcodeReader { AutoRotate = true, TryInverted = true };
-            //Result result = reader.Decode(bitmap);
-            String decoded = result.toString().Trim();
-
-            CloudCoin cloudCoin = JsonConvert.DeserializeObject<CloudCoin>(decoded);
-            return cloudCoin;
-        }
-        catch (Exception)
-        {
-            return null;
-        }*/
-        return null;
-    }
-
-    private CloudCoin ReadBARCode(String fileName)//Read a CloudCoin from BAR Code . 
-    {
-        /* TODO: Deal with Barcode
-        CloudCoin coin = new CloudCoin();
-
-        try
-        {
-            var barcodeReader = new BarcodeReader();
-            Bitmap bitmap = new Bitmap(fileName);
-
-            var barcodeResult = barcodeReader.Decode(bitmap);
-            String decoded = barcodeResult.toString().Trim();
-
-            CloudCoin cloudCoin = JsonConvert.DeserializeObject<CloudCoin>(decoded);
-            return cloudCoin;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-        */
-        return null;
-    }
-
-    private ArrayList<CloudCoin> ReadCSVCoins(String fileName)//Read a CloudCoin from CSV . 
-    {
-        ArrayList<CloudCoin> cloudCoins = new ArrayList<>();
-        ArrayList<String> lines;
+    /**
+     * Import a CloudCoin embedded in a jpg header.
+     *
+     * @param fullFilePath the absolute filepath of the JPG file.
+     */
+    private CloudCoin importJPG(String fullFilePath) {
+        // read until Read method returns 0 (end of the stream has been reached)
         try {
-            lines = new ArrayList<>(Files.readAllLines(Paths.get(fileName)));
-            //var lines = File.ReadAllLines(fileName).Select(a => a.split(","));
-            for (String line : lines)
-                cloudCoins.add(CloudCoin.FromCSV(line));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return cloudCoins;
-    }
+            byte[] headerBytes = new byte[455];
+            int count, sum = 0;
 
-    private CloudCoin importJPEG(String fileName)//Move one jpeg to suspect folder.
-    {
-        // boolean isSuccessful = false;
-        // System.out.println("Trying to load: " + this.fileUtils.importFolder + fileName );
-        System.out.println("Trying to load: " + ImportFolder + fileName);
-        try {
-            //  System.out.println("Loading coin: " + fileUtils.importFolder + fileName);
-            //CloudCoin tempCoin = this.fileUtils.loadOneCloudCoinFromJPEGFile( fileUtils.importFolder + fileName );
-
-            /*Begin import from jpeg*/
-
-            /* GET the first 455 bytes of he jpeg where the coin is located */
-            String wholeString = "";
-            byte[] jpegHeader = new byte[455];
-            // System.out.println("Load file path " + fileUtils.importFolder + fileName);
-
-            int count;                            // actual number of bytes read
-            int sum = 0;                          // total number of bytes read
-
-            FileInputStream inputStream = new FileInputStream(new File(fileName));
-            // read until Read method returns 0 (end of the stream has been reached)
-            while ((count = inputStream.read(jpegHeader, sum, 455 - sum)) > 0) {
-                sum += count;  // sum is a buffer offset for next reading
+            FileInputStream inputStream = new FileInputStream(new File(fullFilePath));
+            while ((count = inputStream.read(headerBytes, sum, 455 - sum)) > 0) {
+                sum += count; // sum is a buffer offset for next reading
             }
             inputStream.close();
 
-            wholeString = bytesToHexString(jpegHeader);
-            CloudCoin tempCoin = parseJpeg(wholeString);
-            // System.out.println("From FileUtils returnCC.fileName " + tempCoin.fileName);
-            /*end import from jpeg file */
-            //   System.out.println("Loaded coin filename: " + tempCoin.fileName);
-            writeTo(SuspectFolder, tempCoin);
-            return tempCoin;
-        } catch (IOException ioex) {
-            System.out.println("IO Exception:" + fileName + ioex);
-            ioex.printStackTrace();
-            //CoreLogger.Log("IO Exception:" + fileName + ioex);
+            String header = bytesToHexString(headerBytes);
+            return CloudCoin.fromJpgHeader(header, fullFilePath.substring(fullFilePath.lastIndexOf(File.separatorChar)));
+        } catch (IOException e) {
+            System.out.println("IO Exception:" + fullFilePath + e);
+            e.printStackTrace();
+            return null;
         }
-        return null;
+    }
+
+    /**
+     * Deletes CloudCoins files from a specific folder.
+     *
+     * @param cloudCoins the ArrayList of CloudCoins to delete.
+     * @param folder     the folder to delete from.
+     */
+    public void removeCoins(ArrayList<CloudCoin> cloudCoins, String folder) {
+        for (CloudCoin coin : cloudCoins) {
+            try {
+                Files.deleteIfExists(Paths.get(folder + coin.getFullFilePath()));
+            } catch (IOException e) {
+                System.out.println(e.getLocalizedMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Writes an array of CloudCoins to a single Stack file.
+     *
+     * @param coins    the ArrayList of CloudCoins.
+     * @param filePath the absolute filepath of the CloudCoin file, without the extension.
+     */
+    public void writeCoinsToSingleStack(ArrayList<CloudCoin> coins, String filePath) {
+        Gson gson = Utils.createGson();
+        try {
+            Stack stack = new Stack(coins.toArray(new CloudCoin[0]));
+            Files.write(Paths.get(filePath + ".stack"), gson.toJson(stack).getBytes());
+        } catch (IOException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Writes a CloudCoins a Stack file.
+     *
+     * @param coin     the ArrayList of CloudCoins.
+     * @param filePath the absolute filepath of the CloudCoin file, without the extension.
+     */
+    public void writeCoinToIndividualStacks(CloudCoin coin, String filePath) {
+        Stack stack = new Stack(coin);
+        try {
+            Files.write(Paths.get(filePath + ".stack"), Utils.createGson().toJson(stack).getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Writes a CloudCoin object to a JPG image. The CloudCoin is embedded in the JPG header as defined here:
+     * <a href="http://www.cloudcoinwiki.com/File_Formats#JPEG_File_Format_for_CloudCoins">JPEG File Format</a>.
+     *
+     * @param cloudCoin    a CloudCoin object.
+     * @param TemplateFile a template JPG image.
+     * @param filePath     the absolute filepath of the new CloudCoin-embedded JPG, without the extension.
+     * @return
+     */
+    public abstract boolean writeCoinToJpeg(CloudCoin cloudCoin, String TemplateFile, String filePath);
+
+    /**
+     * Writes an array of CloudCoin objects to a CSV file.
+     *
+     * @param cloudCoins the ArrayList of CloudCoin objects.
+     * @param filePath   the absolute filepath of the new CloudCoin-embedded JPG, without the extension.
+     * @return true if the file was saved to the location provided, otherwise false.
+     */
+    public abstract boolean writeCoinsToCsv(ArrayList<CloudCoin> cloudCoins, String filePath);
+
+    /**
+     * Returns the full file path for a JPG image template.
+     *
+     * @param cloudCoin the CloudCoin that needs a JPG image template.
+     * @return the full file path for a JPG image template.
+     */
+    public String getJpgTemplate(CloudCoin cloudCoin) {
+        int denomination = CoinUtils.getDenomination(cloudCoin);
+
+        if (denomination == 0)
+            return null;
+        else
+            return TemplateFolder + "jpeg" + denomination + ".jpg";
     }
 
     public CloudCoin LoadCoin(String fileName) {
@@ -268,913 +214,31 @@ public abstract class IFileSystem {
         return null;
     }
 
-    public ArrayList<CloudCoin> LoadCoins(String fileName) {
-        CloudCoin[] coins = Utils.LoadJson(fileName);
-
-        if (coins != null && coins.length > 0)
-            return new ArrayList<>(Arrays.asList(coins));
-        return null;
-    }
-
-    public abstract void ProcessCoins(ArrayList<CloudCoin> coins);
-
-    public abstract void DetectPreProcessing();
-
-
-    public CloudCoin loadOneCloudCoinFromJsonFile(String loadFilePath) {
-
-        CloudCoin returnCC = new CloudCoin();
-
-        //Load file as JSON
-        String incomeJson = this.importJSON(loadFilePath);
-        //STRIP UNESSARY test
-        int secondCurlyBracket = ordinalIndexOf(incomeJson, "{", 2) - 1;
-        int firstCloseCurlyBracket = ordinalIndexOf(incomeJson, "}", 0) - secondCurlyBracket;
-        // incomeJson = incomeJson.substring(secondCurlyBracket, firstCloseCurlyBracket);
-        incomeJson = incomeJson.substring(secondCurlyBracket, firstCloseCurlyBracket + 1);
-        // System.out.println(incomeJson);
-        //Deserial JSON
-
-        try {
-            returnCC = new Gson().fromJson(incomeJson, CloudCoin.class);
-            // TODO: perform file checking to see if the memo bug is present
-        } catch (Exception e) {
-            System.out.println("There was an error reading files in your bank.");
-            System.out.println("You may have the aoid memo bug that uses too many double quote marks.");
-            System.out.println("Your bank files are stored using and older version that did not use properly formed JSON.");
-            System.out.println("Would you like to upgrade these files to the newer standard?");
-            System.out.println("Your files will be edited.");
-            System.out.println("1 for yes, 2 for no.");
-
-
-        }
-
-        return returnCC;
-    }
-
-    public void MoveFile(String SourcePath, String TargetPath, FileMoveOptions options) {
-        try {
-            if (!Files.exists(Paths.get(TargetPath))) {
-                Files.move(Paths.get(SourcePath), Paths.get(TargetPath));
-            } else {
-                if (options == FileMoveOptions.Replace) {
-                    Files.delete(Paths.get(TargetPath));
-                    Files.move(Paths.get(SourcePath), Paths.get(TargetPath));
-                }
-                if (options == FileMoveOptions.Rename) {
-                    String targetFileName = SourcePath.substring(SourcePath.lastIndexOf(File.pathSeparator) + 1, SourcePath.lastIndexOf('.'));
-                    targetFileName += Utils.RandomString(8).toLowerCase() + ".stack";
-                    String targetPath = TargetPath + File.pathSeparator + targetFileName;
-                    Files.move(Paths.get(SourcePath), Paths.get(targetPath));
-
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String importJSON(String jsonfile) {
-        String jsonData = "";
-        String line;
-
-        try {
-            jsonData = new String(Files.readAllBytes(Paths.get(jsonfile)));
-        } catch (IOException e) {
-            System.out.println("The file " + jsonfile + " could not be read:");
-            e.printStackTrace();
-        }
-
-        return jsonData;
-    }
-
-    // en d json test
-    public String setJSON(CloudCoin cc) {
-        final String quote = "\"";
-        final String tab = "\t";
-        String json = (tab + tab + "{ " + System.lineSeparator());// {
-        json += tab + tab + quote + "nn" + quote + ":" + quote + cc.nn + quote + ", " + System.lineSeparator();// "nn":"1",
-        json += tab + tab + quote + "sn" + quote + ":" + quote + cc.getSn() + quote + ", " + System.lineSeparator();// "sn":"367544",
-        json += tab + tab + quote + "an" + quote + ": [" + quote;// "an": ["
-        for (int i = 0; (i < 25); i++) {
-            json += cc.an.get(i);// 8551995a45457754aaaa44
-            if (i == 4 || i == 9 || i == 14 || i == 19) {
-                json += quote + "," + System.lineSeparator() + tab + tab + tab + quote; //",
-            } else if (i == 24) {
-                // json += "\""; last one do nothing
-            } else {
-                json += quote + ", " + quote;
-            }
-
-
-        }
-
-        json += quote + "]," + System.lineSeparator();//"],
-
-        //CoinUtils cu = new CoinUtils(cc);
-        //cu.calcExpirationDate();
-        cc.CalcExpirationDate();
-        json += tab + tab + quote + "ed" + quote + ":" + quote + cc.ed + quote + "," + System.lineSeparator(); // "ed":"9-2016",
-        if (cc.pown == null || cc.pown.length() == 0) {
-            cc.pown = "uuuuuuuuuuuuuuuuuuuuuuuuu";
-        }//Set pown to unknow if it is not set.
-        json += tab + tab + quote + "pown" + quote + ":" + quote + cc.pown + quote + "," + System.lineSeparator();// "pown":"uuupppppffpppppfuuf",
-        json += tab + tab + quote + "aoid" + quote + ": []" + System.lineSeparator();
-        json += tab + tab + "}" + System.lineSeparator();
-        // Keep expiration date when saving (not a truley accurate but good enought )
-        return json;
-    }
-
-
-    public abstract void MoveImportedFiles();
-
-    public void RemoveCoins(ArrayList<CloudCoin> coins, String folder) {
-        RemoveCoins(coins, folder, ".stack");
-    }
-
-    public void RemoveCoins(ArrayList<CloudCoin> coins, String folder, String extension) {
-        for (CloudCoin coin : coins) {
-            try {
-                Files.delete(Paths.get(folder + coin.FileName() + extension));
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void MoveCoins(ArrayList<CloudCoin> coins, String sourceFolder, String targetFolder) {
-        MoveCoins(coins, sourceFolder, targetFolder, ".stack", false);
-    }
-
-    public void MoveCoins(ArrayList<CloudCoin> coins, String sourceFolder, String targetFolder, String extension) {
-        MoveCoins(coins, sourceFolder, targetFolder, extension, false);
-    }
-
-    public void MoveCoins(ArrayList<CloudCoin> coins, String sourceFolder, String targetFolder, String extension, boolean replaceCoins) {
-        ArrayList<CloudCoin> folderCoins = LoadFolderCoins(targetFolder);
-
-        for (CloudCoin coin : coins) {
-            String fileName = (coin.FileName());
-            int coinExists = 0;
-            for (CloudCoin folderCoin : folderCoins)
-                if (folderCoin.getSn() == coin.getSn())
-                    coinExists++;
-            //int coinExists = (int) Arrays.stream(folderCoins.toArray(new CloudCoin[0])).filter(x -> x.getSn() == coin.getSn()).count();
-
-            if (coinExists > 0 && !replaceCoins) {
-                String suffix = Utils.RandomString(16);
-                fileName += suffix.toLowerCase();
-            }
-            try {
-                Gson gson = new Gson();
-                Stack stack = new Stack(coin);
-                Files.write(Paths.get(targetFolder + fileName + extension), gson.toJson(stack).getBytes(StandardCharsets.UTF_8));
-                Files.delete(Paths.get(sourceFolder + coin.FileName() + extension));
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void WriteCoinsToFile(ArrayList<CloudCoin> coins, String fileName) {
-        WriteCoinsToFile(coins, fileName, ".stack");
-    }
-
-    public void WriteCoinsToFile(ArrayList<CloudCoin> coins, String fileName, String extension) {
-        Gson gson = new Gson();
-        Stack stack = new Stack((CloudCoin[]) coins.toArray());
-        try {
-            Files.write(Paths.get(fileName + extension), gson.toJson(stack).getBytes());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public void WriteCoinToFile(CloudCoin coin, String filename) {
-        Stack stack = new Stack(coin);
-        try {
-            Files.write(Paths.get(filename), new Gson().toJson(stack).getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void WriteCoin(ArrayList<CloudCoin> coins, String folder) {
-        WriteCoin(coins, folder, false);
-    }
-
-    public void WriteCoin(ArrayList<CloudCoin> coins, String folder, boolean writeAll) {
-        if (writeAll) {
-            String file = folder + Utils.RandomString(16) + ".stack";
-            try {
-                Stack stack = new Stack(coins);
-                Gson gson = new Gson();
-                Files.write(Paths.get(file), gson.toJson(stack).getBytes(StandardCharsets.UTF_8));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return;
-        }
-
-        ArrayList<CloudCoin> folderCoins = LoadFolderCoins(folder);
-
-        for (CloudCoin coin : coins) {
-            String fileName = coin.FileName();
-            int coinExists = 0;
-            for (CloudCoin folderCoin : folderCoins)
-                if (folderCoin.getSn() == coin.getSn())
-                    coinExists++;
-            //int coinExists = (int) Arrays.stream(folderCoins.toArray(new CloudCoin[0])).filter(x -> x.getSn() == coin.getSn()).count();
-
-            if (coinExists > 0) {
-                String suffix = Utils.RandomString(16);
-                fileName += suffix.toLowerCase();
-            }
-
-            Stack stack = new Stack(coin);
-            try {
-                Files.write(Paths.get(folder + fileName + ".stack"), new Gson().toJson(stack).getBytes(StandardCharsets.UTF_8));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void WriteCoin(CloudCoin coin, String folder) {
-        WriteCoin(coin, folder, ".stack");
-    }
-
-    public void WriteCoin(CloudCoin coin, String folder, String extension) {
-        ArrayList<CloudCoin> folderCoins = LoadFolderCoins(folder);
-        String fileName = (coin.FileName());
-
-        int coinExists = 0;
-        for (CloudCoin folderCoin : folderCoins)
-            if (folderCoin.getSn() == coin.getSn())
-                coinExists++;
-        //int coinExists = (int) Arrays.stream(folderCoins.toArray(new CloudCoin[0])).filter(x -> x.getSn() == coin.getSn()).count();
-
-        if (coinExists > 0) {
-            String suffix = Utils.RandomString(16);
-            fileName += suffix.toLowerCase();
-        }
-
-        Stack stack = new Stack(coin);
-        try {
-            Files.write(Paths.get(folder + File.pathSeparator + fileName + extension), new Gson().toJson(stack).getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public int ordinalIndexOf(String str, String substr, int n) {
-        int pos = str.indexOf(substr);
-        while (--n > 0 && pos != -1)
-            pos = str.indexOf(substr, pos + 1);
-        return pos;
-    }
-
-    public boolean writeQrCode(CloudCoin cc, String tag) {
-        /* TODO: Deal with QR Code
-        String fileName = ExportFolder + cc.FileName() + "qr." + tag + ".jpg";
-        cc.pan = null;
-        QRCodeGenerator qrGenerator = new QRCodeGenerator();
-        String json = JsonConvert.SerializeObject(cc);
-
-        try
-        {
-            json.replace("\\", "");
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(cc.GetCSV(), QRCodeGenerator.ECCLevel.Q);
-            QRCode qrCode = new QRCode(qrCodeData);
-            System.Drawing.Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-            qrCodeImage.Save(fileName);
-
-            return true;
-        }
-        catch(Exception e)
-        {
-            System.out.println(e.getMessage());
-            return false;
-        }*/
-        return false;
-    }
-
-    public boolean writeBarCode(CloudCoin cc, String tag) {
-        //String fileName = ExportFolder + cc.FileName + "barcode." + tag + ".jpg";
-        //cc.pan = null;
-        //QRCodeGenerator qrGenerator = new QRCodeGenerator();
-
-
-        //try
-        //{
-        //    String json = JsonConvert.SerializeObject(cc);
-        //    var barcode = new Barcode(json, Settings.Default);
-        //    barcode.Canvas.SaveBmp(fileName);
-
-        //    return true;
-        //}
-        //catch (Exception e)
-        //{
-        //    System.out.println(e.getMessage());
-        //    return false;
-        //}
-        return true;
-    }
-
-    public abstract boolean WriteCoinToJpeg(CloudCoin cloudCoin, String TemplateFile, String OutputFile, String tag);
-
-    public abstract boolean WriteCoinToQRCode(CloudCoin cloudCoin, String OutputFile, String tag);
-
-    public abstract boolean WriteCoinToBARCode(CloudCoin cloudCoin, String OutputFile, String tag);
-
-    public String GetCoinTemplate(CloudCoin cloudCoin) {
-        int denomination = cloudCoin.denomination;
-        String TemplatePath = "";
-        switch (denomination) {
-            case 1:
-                TemplatePath = this.TemplateFolder + "jpeg1.jpg";
-                break;
-            case 5:
-                TemplatePath = this.TemplateFolder + "jpeg5.jpg";
-                break;
-            case 25:
-                TemplatePath = this.TemplateFolder + "jpeg25.jpg";
-                break;
-            case 100:
-                TemplatePath = this.TemplateFolder + "jpeg100.jpg";
-                break;
-            case 250:
-                TemplatePath = this.TemplateFolder + "jpeg250.jpg";
-                break;
-
-            default:
-                break;
-
-        }
-        return TemplatePath;
-    }
-
-    public boolean writeJpeg(CloudCoin cc, String tag) {
-        /*  TODO: Deal with Barcode
-        // System.out.println("Writing jpeg " + cc.getSn());
-
-        //  CoinUtils cu = new CoinUtils(cc);
-
-        boolean fileSavedSuccessfully = true;
-
-        // BUILD THE CLOUDCOIN String //
-        String cloudCoinStr = "01C34A46494600010101006000601D05"; //THUMBNAIL HEADER BYTES
-        for (int i = 0; (i < 25); i++)
-        {
-            cloudCoinStr = cloudCoinStr + cc.an.get(i);
-        }
-
-        //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
-        //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
-        cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
-        cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
-        // for (int i =0; i < 25; i++) {
-        //     switch () { }
-        // }
-        cloudCoinStr += "00"; // HC: Has comments. 00 = No
-        cc.CalcExpirationDate();
-        cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
-        cloudCoinStr += "01";//  cc.nn;//network number
-        String hexSN = cc.getSn().ToString("X6");
-        String fullHexSN = "";
-        switch (hexSN.length())
-        {
-            case 1: fullHexSN = ("00000" + hexSN); break;
-            case 2: fullHexSN = ("0000" + hexSN); break;
-            case 3: fullHexSN = ("000" + hexSN); break;
-            case 4: fullHexSN = ("00" + hexSN); break;
-            case 5: fullHexSN = ("0" + hexSN); break;
-            case 6: fullHexSN = hexSN; break;
-        }
-        cloudCoinStr = (cloudCoinStr + fullHexSN);
-        // BYTES THAT WILL GO FROM 04 to 454 (Inclusive)//
-        byte[] ccArray = this.hexStringToByteArray(cloudCoinStr);
-
-
-        // READ JPEG TEMPLATE//
-        byte[] jpegBytes = null;
-        switch (cc.getDenomination())
-        {
-            case 1: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg1.jpg"); break;
-            case 5: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg5.jpg"); break;
-            case 25: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg25.jpg"); break;
-            case 100: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg100.jpg"); break;
-            case 250: jpegBytes = readAllBytes(this.TemplateFolder + "jpeg250.jpg"); break;
-        }
-
-
-        // WRITE THE SERIAL NUMBER ON THE JPEG //
-
-        //Bitmap bitmapimage;
-        SKBitmap bitmapimage;
-        //using (var ms = new MemoryStream(jpegBytes))
-        {
-
-            //bitmapimage = new Bitmap(ms);
-            bitmapimage = SKBitmap.Decode(jpegBytes);
-        }
-        SKCanvas canvas = new SKCanvas(bitmapimage);
-        //Graphics graphics = Graphics.FromImage(bitmapimage);
-        //graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        SKPaint textPaint = new SKPaint()
-        {
-            IsAntialias = true,
-            Color = SKColors.White,
-            TextSize = 14,
-            Typeface = SKTypeface.FromFamilyName("Arial")
-        };
-        //PointF drawPointAddress = new PointF(30.0F, 25.0F);
-
-        canvas.DrawText(String.format("{0:N0}", cc.getSn()) + " of 16,777,216 on Network: 1", 30, 40, textPaint);
-        //graphics.DrawString(String.format("{0:N0}", cc.getSn()) + " of 16,777,216 on Network: 1", new Font("Arial", 10), Brushes.White, drawPointAddress);
-
-        //ImageConverter converter = new ImageConverter();
-        //byte[] snBytes = (byte[])converter.ConvertTo(bitmapimage, typeof(byte[]));
-        SKImage image = SKImage.FromBitmap(bitmapimage);
-        SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
-        byte[] snBytes = data.toArray();
-
-        ArrayList<byte> b1 = new ArrayList<byte>(snBytes);
-        ArrayList<byte> b2 = new ArrayList<byte>(ccArray);
-        b1.InsertRange(4, b2);
-
-        if (tag == "random")
-        {
-            Random r = new Random();
-            int rInt = r.Next(100000, 1000000); //for ints
-            tag = rInt.toString();
-        }
-
-        String fileName = ExportFolder + cc.FileName() + tag + ".jpg";
-        File.WriteAllBytes(fileName, b1.toArray());
-        System.out.println("Writing to " + fileName);
-        //CoreLogger.Log("Writing to " + fileName);
-        return fileSavedSuccessfully;
-        */
-        return false;
-    }
-
-    public boolean writeJpeg(CloudCoin cc, String tag, String filePath) {
-            /* TODO: Deal with JPEG
-        // System.out.println("Writing jpeg " + cc.getSn());
-
-        //  CoinUtils cu = new CoinUtils(cc);
-        filePath = filePath.replace("\\\\","\\");
-        boolean fileSavedSuccessfully = true;
-
-        // BUILD THE CLOUDCOIN String //
-        String cloudCoinStr = "01C34A46494600010101006000601D05"; //THUMBNAIL HEADER BYTES
-        for (int i = 0; (i < 25); i++)
-        {
-            cloudCoinStr = cloudCoinStr + cc.an.get(i);
-        }
-
-        //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
-        //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
-        cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
-        cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
-        // for (int i =0; i < 25; i++) {
-        //     switch () { }
-        // }
-        cloudCoinStr += "00"; // HC: Has comments. 00 = No
-        cc.CalcExpirationDate();
-        cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
-        cloudCoinStr += "01";//  cc.nn;//network number
-        String hexSN = cc.getSn().ToString("X6");
-        String fullHexSN = "";
-        switch (hexSN.length())
-        {
-            case 1: fullHexSN = ("00000" + hexSN); break;
-            case 2: fullHexSN = ("0000" + hexSN); break;
-            case 3: fullHexSN = ("000" + hexSN); break;
-            case 4: fullHexSN = ("00" + hexSN); break;
-            case 5: fullHexSN = ("0" + hexSN); break;
-            case 6: fullHexSN = hexSN; break;
-        }
-        cloudCoinStr = (cloudCoinStr + fullHexSN);
-        // BYTES THAT WILL GO FROM 04 to 454 (Inclusive)//
-        byte[] ccArray = this.hexStringToByteArray(cloudCoinStr);
-
-
-        // READ JPEG TEMPLATE//
-        byte[] jpegBytes = null;
-
-        jpegBytes = readAllBytes(filePath);
-        if (jpegBytes == null)
-            return false;
-
-        // WRITE THE SERIAL NUMBER ON THE JPEG //
-
-        //Bitmap bitmapimage;
-        SKBitmap bitmapimage;
-        //using (var ms = new MemoryStream(jpegBytes))
-        {
-
-            //bitmapimage = new Bitmap(ms);
-            bitmapimage = SKBitmap.Decode(jpegBytes);
-        }
-        SKCanvas canvas = new SKCanvas(bitmapimage);
-        //Graphics graphics = Graphics.FromImage(bitmapimage);
-        //graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        SKPaint textPaint = new SKPaint()
-        {
-            IsAntialias = true,
-            Color = SKColors.White,
-            TextSize = 14,
-            Typeface = SKTypeface.FromFamilyName("Arial")
-        };
-        //PointF drawPointAddress = new PointF(30.0F, 25.0F);
-
-        canvas.DrawText(String.format("{0:N0}", cc.getSn()) + " of 16,777,216 on Network: 1", 30, 40, textPaint);
-        //graphics.DrawString(String.format("{0:N0}", cc.getSn()) + " of 16,777,216 on Network: 1", new Font("Arial", 10), Brushes.White, drawPointAddress);
-
-        //ImageConverter converter = new ImageConverter();
-        //byte[] snBytes = (byte[])converter.ConvertTo(bitmapimage, typeof(byte[]));
-        SKImage image = SKImage.FromBitmap(bitmapimage);
-        SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
-        byte[] snBytes = data.toArray();
-
-        ArrayList<byte> b1 = new ArrayList<byte>(snBytes);
-        ArrayList<byte> b2 = new ArrayList<byte>(ccArray);
-        b1.InsertRange(4, b2);
-
-        if (tag == "random")
-        {
-            Random r = new Random();
-            int rInt = r.Next(100000, 1000000); //for ints
-            tag = rInt.toString();
-        }
-
-        String fileName = ExportFolder + cc.FileName()  + ".jpg";
-        File.WriteAllBytes(fileName, b1.toArray());
-        System.out.println("Writing to " + fileName);
-        //CoreLogger.Log("Writing to " + fileName);
-        return fileSavedSuccessfully;
-        */
-        return false;
-    }
-
-    public boolean writeJpeg(CloudCoin cc, String tag, String filePath, String targetPath) {
-            /* TODO: Deal with JPEG
-        // System.out.println("Writing jpeg " + cc.getSn());
-
-        //  CoinUtils cu = new CoinUtils(cc);
-        filePath = filePath.replace("\\\\", "\\");
-        boolean fileSavedSuccessfully = true;
-
-        // BUILD THE CLOUDCOIN String //
-        String cloudCoinStr = "01C34A46494600010101006000601D05"; //THUMBNAIL HEADER BYTES
-        for (int i = 0; (i < 25); i++)
-        {
-            cloudCoinStr = cloudCoinStr + cc.an.get(i);
-        }
-
-        //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
-        //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
-        cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
-        cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
-        // for (int i =0; i < 25; i++) {
-        //     switch () { }
-        // }
-        cloudCoinStr += "00"; // HC: Has comments. 00 = No
-        cc.CalcExpirationDate();
-        cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
-        cloudCoinStr += "01";//  cc.nn;//network number
-        String hexSN = cc.getSn().ToString("X6");
-        String fullHexSN = "";
-        switch (hexSN.length())
-        {
-            case 1: fullHexSN = ("00000" + hexSN); break;
-            case 2: fullHexSN = ("0000" + hexSN); break;
-            case 3: fullHexSN = ("000" + hexSN); break;
-            case 4: fullHexSN = ("00" + hexSN); break;
-            case 5: fullHexSN = ("0" + hexSN); break;
-            case 6: fullHexSN = hexSN; break;
-        }
-        cloudCoinStr = (cloudCoinStr + fullHexSN);
-        // BYTES THAT WILL GO FROM 04 to 454 (Inclusive)//
-        byte[] ccArray = this.hexStringToByteArray(cloudCoinStr);
-
-
-        // READ JPEG TEMPLATE//
-        byte[] jpegBytes = null;
-=
-        jpegBytes = readAllBytes(filePath);
-        if (jpegBytes == null)
-            return false;
-
-        // WRITE THE SERIAL NUMBER ON THE JPEG //
-
-        //Bitmap bitmapimage;
-        SKBitmap bitmapimage;
-        //using (var ms = new MemoryStream(jpegBytes))
-        {
-
-            //bitmapimage = new Bitmap(ms);
-            bitmapimage = SKBitmap.Decode(jpegBytes);
-        }
-        SKCanvas canvas = new SKCanvas(bitmapimage);
-        //Graphics graphics = Graphics.FromImage(bitmapimage);
-        //graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        SKPaint textPaint = new SKPaint()
-        {
-            IsAntialias = true,
-            Color = SKColors.White,
-            TextSize = 14,
-            Typeface = SKTypeface.FromFamilyName("Arial")
-        };
-        //PointF drawPointAddress = new PointF(30.0F, 25.0F);
-
-        canvas.DrawText(String.format("{0:N0}", cc.getSn()) + " of 16,777,216 on Network: 1", 30, 40, textPaint);
-        //graphics.DrawString(String.format("{0:N0}", cc.getSn()) + " of 16,777,216 on Network: 1", new Font("Arial", 10), Brushes.White, drawPointAddress);
-
-        //ImageConverter converter = new ImageConverter();
-        //byte[] snBytes = (byte[])converter.ConvertTo(bitmapimage, typeof(byte[]));
-        SKImage image = SKImage.FromBitmap(bitmapimage);
-        SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
-        byte[] snBytes = data.toArray();
-
-        ArrayList<byte> b1 = new ArrayList<byte>(snBytes);
-        ArrayList<byte> b2 = new ArrayList<byte>(ccArray);
-        b1.InsertRange(4, b2);
-
-        if (tag == "random")
-        {
-            Random r = new Random();
-            int rInt = r.Next(100000, 1000000); //for ints
-            tag = rInt.toString();
-        }
-
-        String fileName = targetPath;
-        File.WriteAllBytes(fileName, b1.toArray());
-        System.out.println("Writing to " + fileName);
-        //CoreLogger.Log("Writing to " + fileName);
-        return fileSavedSuccessfully;
-        */
-        return false;
-    }
-
-    public boolean writeJpeg(CloudCoin cc, String tag, String filePath, String targetPath, String printMessage) {
-            /* TODO: Deal with JPEG
-        // System.out.println("Writing jpeg " + cc.getSn());
-
-        //  CoinUtils cu = new CoinUtils(cc);
-        filePath = filePath.replace("\\\\", "\\");
-        boolean fileSavedSuccessfully = true;
-
-        // BUILD THE CLOUDCOIN String //
-        String cloudCoinStr = "01C34A46494600010101006000601D05"; //THUMBNAIL HEADER BYTES
-        for (int i = 0; (i < 25); i++)
-        {
-            cloudCoinStr = cloudCoinStr + cc.an[i];
-        }
-
-        //cloudCoinStr += "204f42455920474f4420262044454645415420545952414e545320";// Hex for " OBEY GOD & DEFEAT TYRANTS "
-        //cloudCoinStr += "20466f756e6465727320372d352d3137";// Founders 7-5-17
-        cloudCoinStr += "4c6976652046726565204f7220446965";// Live Free or Die
-        cloudCoinStr += "00000000000000000000000000";//Set to unknown so program does not export user data
-        // for (int i =0; i < 25; i++) {
-        //     switch () { }
-        // }
-        cloudCoinStr += "00"; // HC: Has comments. 00 = No
-        cc.CalcExpirationDate();
-        cloudCoinStr += cc.edHex; // 01;//Expiration date Sep 2016 (one month after zero month)
-        cloudCoinStr += "01";//  cc.nn;//network number
-        String hexSN = cc.getSn().ToString("X6");
-        String fullHexSN = "";
-        switch (hexSN.length)
-        {
-            case 1: fullHexSN = ("00000" + hexSN); break;
-            case 2: fullHexSN = ("0000" + hexSN); break;
-            case 3: fullHexSN = ("000" + hexSN); break;
-            case 4: fullHexSN = ("00" + hexSN); break;
-            case 5: fullHexSN = ("0" + hexSN); break;
-            case 6: fullHexSN = hexSN; break;
-        }
-        cloudCoinStr = (cloudCoinStr + fullHexSN);
-        // BYTES THAT WILL GO FROM 04 to 454 (Inclusive)//
-        byte[] ccArray = this.hexStringToByteArray(cloudCoinStr);
-
-
-        // READ JPEG TEMPLATE//
-        byte[] jpegBytes = null;
-
-        jpegBytes = readAllBytes(filePath);
-        if (jpegBytes == null)
-            return false;
-
-        // WRITE THE SERIAL NUMBER ON THE JPEG //
-
-        //Bitmap bitmapimage;
-        SKBitmap bitmapimage;
-        //using (var ms = new MemoryStream(jpegBytes))
-        {
-
-            //bitmapimage = new Bitmap(ms);
-            bitmapimage = SKBitmap.Decode(jpegBytes);
-        }
-        SKCanvas canvas = new SKCanvas(bitmapimage);
-        //Graphics graphics = Graphics.FromImage(bitmapimage);
-        //graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        SKPaint textPaint = new SKPaint()
-        {
-            IsAntialias = true,
-            Color = SKColors.White,
-            TextSize = 14,
-            Typeface = SKTypeface.FromFamilyName("Arial")
-        };
-        //PointF drawPointAddress = new PointF(30.0F, 25.0F);
-
-        canvas.DrawText(printMessage, 30, 40, textPaint);
-        //graphics.DrawString(String.format("{0:N0}", cc.getSn()) + " of 16,777,216 on Network: 1", new Font("Arial", 10), Brushes.White, drawPointAddress);
-
-        //ImageConverter converter = new ImageConverter();
-        //byte[] snBytes = (byte[])converter.ConvertTo(bitmapimage, typeof(byte[]));
-        SKImage image = SKImage.FromBitmap(bitmapimage);
-        SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
-        byte[] snBytes = data.toArray();
-
-        ArrayList<byte> b1 = new ArrayList<byte>(snBytes);
-        ArrayList<byte> b2 = new ArrayList<byte>(ccArray);
-        b1.InsertRange(4, b2);
-
-        if (tag == "random")
-        {
-            Random r = new Random();
-            int rInt = r.Next(100000, 1000000); //for ints
-            tag = rInt.toString();
-        }
-
-        String fileName = targetPath;
-        File.WriteAllBytes(fileName, b1.toArray());
-        System.out.println("Writing to " + fileName);
-        //CoreLogger.Log("Writing to " + fileName);
-        return fileSavedSuccessfully;
-        */
-        return false;
-    }
-
-
-    public String bytesToHexString(byte[] data) {
-        int length = data.length;
-        char[] hex = new char[length * 2];
-        int num1 = 0;
-        for (int index = 0; index < length * 2; index += 2) {
-            byte num2 = data[num1++];
-            hex[index] = GetHexValue(num2 / 0x10);
-            hex[index + 1] = GetHexValue(num2 % 0x10);
-        }
-        return new String(hex);
-    }
-
-    private char GetHexValue(int i) {
-        if (i < 10) {
-            return (char) (i + 0x30);
-        }
-        return (char) ((i - 10) + 0x41);
-    }
-
-    /* Writes a JPEG To the Export Folder */
-
-    /* OPEN FILE AND READ ALL CONTENTS AS BYTE ARRAY */
-    public byte[] readAllBytes(String fileName) {
-        try {
-            return Files.readAllBytes(Paths.get(fileName));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public boolean writeTo(String folder, CloudCoin cc) {
-        //CoinUtils cu = new CoinUtils(cc);
-        final String quote = "\"";
-        final String tab = "\t";
-        String wholeJson = "{" + System.lineSeparator(); //{
-        boolean alreadyExists = true;
-        String json = this.setJSON(cc);
-
-        try {
-            if (!Files.exists(Paths.get(folder + cc.FileName() + ".stack"))) {
-                wholeJson += tab + quote + "cloudcoin" + quote + ": [" + System.lineSeparator(); // "cloudcoin" : [
-                wholeJson += json;
-                wholeJson += System.lineSeparator() + tab + "]" + System.lineSeparator() + "}";
-                alreadyExists = true;
-                Files.write(Paths.get(folder + cc.FileName() + ".stack"), wholeJson.getBytes(StandardCharsets.UTF_8));
-            } else {
-                if (folder.contains("Counterfeit") || folder.contains("Trash")) {
-                    //Let the program delete it
-                    alreadyExists = false;
-                    return alreadyExists;
-                } else if (folder.contains("Imported")) {
-                    alreadyExists = false;
-                    Files.delete(Paths.get(folder + cc.FileName() + ".stack"));
-                    Files.write(Paths.get(folder + cc.FileName() + ".stack"), wholeJson.getBytes(StandardCharsets.UTF_8));
-                    return alreadyExists;
-                } else {
-                    System.out.println(cc.FileName() + ".stack" + " already exists in the folder " + folder);
-                    //CoreLogger.Log(cu.fileName + ".stack" + " already exists in the folder " + folder);
-                    return alreadyExists;
-                }
-            }//File Exists
-            // TODO: Should not write text twice
-            Files.write(Paths.get(folder + cc.FileName() + ".stack"), wholeJson.getBytes(StandardCharsets.UTF_8));
-            alreadyExists = false;
-            return alreadyExists;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-    }
-
     public void overWrite(String folder, CloudCoin cc) {
         //CoinUtils cu = new CoinUtils(cc);
         final String quote = "\"";
         final String tab = "\t";
-        String wholeJson = "{" + System.lineSeparator(); //{
-        String json = this.setJSON(cc);
-
-        wholeJson += tab + quote + "cloudcoin" + quote + ": [" + System.lineSeparator(); // "cloudcoin" : [
-        wholeJson += json;
-        wholeJson += System.lineSeparator() + tab + "]" + System.lineSeparator() + "}";
+        String wholeJson = "{" + System.lineSeparator();
+        String json = Utils.createGson().toJson(cc, String.class);
 
         try {
-            Files.write(Paths.get(folder + cc.FileName() + ".stack"), wholeJson.getBytes(StandardCharsets.UTF_8));
+            Files.write(Paths.get(folder + cc.getFullFilePath() + ".stack"), wholeJson.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public CloudCoin loadOneCloudCoinFromJPEGFile(String loadFilePath) {
-        /* GET the first 455 bytes of he jpeg where the coin is located */
-        String wholeString = "";
-        byte[] jpegHeader = new byte[455];
-        System.out.println("Load file path " + loadFilePath);
-
-        try {
-            int count;                            // actual number of bytes read
-            int sum = 0;                          // total number of bytes read
-            FileInputStream inputStream = new FileInputStream(new File(loadFilePath));
-            // read until Read method returns 0 (end of the stream has been reached)
-            while ((count = inputStream.read(jpegHeader, sum, 455 - sum)) > 0) {
-                sum += count;  // sum is a buffer offset for next reading
-            }
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        wholeString = bytesToHexString(jpegHeader);
-        CloudCoin returnCC = this.parseJpeg(wholeString);
-        // System.out.println("From FileUtils returnCC.fileName " + returnCC.fileName);
-        return returnCC;
-    }
-
-    public CloudCoin parseJpeg(String wholeString) {
-
-        CloudCoin cc = new CloudCoin();
-        int startAn = 40;
-        for (int i = 0; i < 25; i++) {
-            cc.an.add(wholeString.substring(startAn, 32));
-            //ccan.set(i, wholeString.substring(startAn, 32));
-            // System.out.println(i +": " + cc.an[i]);
-            startAn += 32;
-        }
-
-
-        cc.aoid = null;
-        // wholeString.substring( 840, 895 );
-        //cc.hp = 25;
-        // Integer.parseInt(wholeString.substring( 896, 896 ), 16);
-        cc.ed = wholeString.substring(898, 4);
-
-        cc.nn = Integer.valueOf(wholeString.substring(902, 2), 16);
-        cc.setSn(Integer.valueOf(wholeString.substring(904, 6), 16));
-        cc.pown = "uuuuuuuuuuuuuuuuuuuuuuuuu";
-        //  System.out.println("parseJpeg cc.fileName " + cc.fileName);
-        return cc;
-    }
-
-    // en d json test
-    public byte[] hexStringToByteArray(String HexString) {
-        int NumberChars = HexString.length();
-        byte[] bytes = new byte[NumberChars / 2];
-        for (int i = 0; i < NumberChars; i += 2) {
-            bytes[i / 2] = Byte.valueOf(HexString.substring(i, 2), 16);
-        }
-        return bytes;
+    /**
+     * Converts a byte array to a hexadecimal String.
+     *
+     * @param data the byte array.
+     * @return a hexadecimal String.
+     */
+    public String bytesToHexString(byte[] data) {
+        final String HexChart = "0123456789ABCDEF";
+        final StringBuilder hex = new StringBuilder(data.length * 2);
+        for (byte b : data)
+            hex.append(HexChart.charAt((b & 0xF0) >> 4)).append(HexChart.charAt((b & 0x0F)));
+        return hex.toString();
     }
 }
