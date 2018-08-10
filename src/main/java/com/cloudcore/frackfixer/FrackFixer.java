@@ -100,6 +100,7 @@ public class FrackFixer {
         if (frackedFiles.length < 0)
             updateLog("You have no fracked coins.");
 
+        updateLog("Fixing fracked coins: " + frackedFiles.length);
         for (int i = 0; i < frackedFiles.length; i++) {
             if (!continueExecution) {
                 System.out.println("Aborting Fix 1");
@@ -107,40 +108,38 @@ public class FrackFixer {
             }
             String response = "Unfracking coin " + (i + 1) + " of " + frackedFiles.length;
             updateLog(response);
-            try {
-                frackedCC = fileUtils.LoadCoin(this.fileUtils.FrackedFolder + frackedFiles[i]);
-                if (frackedCC == null)
-                    throw new IOException();
-                CoinUtils.consoleReport(frackedCC);
 
-                frackedCC = fixCoin(frackedCC); // Will attempt to unfrack the coin.
-                if (!continueExecution) {
-                    System.out.println("Aborting Fix 2");
+            frackedCC = fileUtils.LoadCoin(frackedFiles[i].toString());
+            if (frackedCC == null) {
+                updateLog(frackedFiles[i] + " is null, skipping");
+                continue;
+            }
+            CoinUtils.consoleReport(frackedCC);
+            frackedCC = fixCoin(frackedCC); // Will attempt to unfrack the coin.
+            if (!continueExecution) {
+                updateLog("Aborting Fix 2");
+                break;
+            }
+            CoinUtils.consoleReport(frackedCC);
+            switch (frackedCC.folder.toLowerCase()) {
+                case "bank":
+                    this.totalValueToBank++;
+                    this.fileUtils.overWrite(this.fileUtils.BankFolder, frackedCC);
+                    this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
+                    updateLog("CloudCoin was moved to Bank.");
                     break;
-                }
-                CoinUtils.consoleReport(frackedCC);
-                switch (frackedCC.folder.toLowerCase()) {
-                    case "bank":
-                        this.totalValueToBank++;
-                        this.fileUtils.overWrite(this.fileUtils.BankFolder, frackedCC);
-                        this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                        updateLog("CloudCoin was moved to Bank.");
-                        break;
-                    case "counterfeit":
-                        this.totalValueToCounterfeit++;
-                        this.fileUtils.overWrite(this.fileUtils.CounterfeitFolder, frackedCC);
-                        this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                        updateLog("CloudCoin was moved to Trash.");
-                        break;
-                    default://Move back to fracked folder
-                        this.totalValueToFractured++;
-                        this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                        this.fileUtils.overWrite(this.fileUtils.FrackedFolder, frackedCC);
-                        updateLog("CloudCoin was moved back to Fracked folder.");
-                        break;
-                }
-            } catch (IOException e) {
-                updateLog(e.getMessage());
+                case "counterfeit":
+                    this.totalValueToCounterfeit++;
+                    this.fileUtils.overWrite(this.fileUtils.CounterfeitFolder, frackedCC);
+                    this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
+                    updateLog("CloudCoin was moved to Trash.");
+                    break;
+                default://Move back to fracked folder
+                    this.totalValueToFractured++;
+                    this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
+                    this.fileUtils.overWrite(this.fileUtils.FrackedFolder, frackedCC);
+                    updateLog("CloudCoin was moved back to Fracked folder.");
+                    break;
             }
         }
 

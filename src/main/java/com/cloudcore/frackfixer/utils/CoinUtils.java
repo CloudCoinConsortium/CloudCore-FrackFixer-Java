@@ -116,6 +116,7 @@ public class CoinUtils {
      * Updates the Authenticity Numbers to the new Proposed Authenticity Numbers.
      */
     public static void setAnsToPans(CloudCoin coin) {
+        coin.pan = new String[coin.an.size()];
         for (int i = 0; (i < 25); i++)
             coin.pan[i] = coin.an.get(i);
         //coin.an.toArray(coin.pan);

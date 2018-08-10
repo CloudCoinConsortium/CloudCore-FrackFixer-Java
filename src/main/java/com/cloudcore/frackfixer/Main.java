@@ -1,5 +1,6 @@
 package com.cloudcore.frackfixer;
 
+import com.cloudcore.frackfixer.core.Config;
 import com.cloudcore.frackfixer.core.FileSystem;
 import com.cloudcore.frackfixer.utils.SimpleLogger;
 
@@ -12,7 +13,7 @@ public class Main {
 
     /* Constants */
 
-    public static final String rootFolder = Paths.get("C:/CloudCoins-Exporter").toAbsolutePath().toString();
+    public static final String rootFolder = Paths.get("C:/CloudCoins-FrackFixer").toAbsolutePath().toString();
 
 
     /* Fields */
@@ -28,10 +29,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             setup();
-            Exporter exporter = new Exporter(fs);
-            exporter.logger = logger;
-
-            exporter.ExportCoins();
+            FrackFix();
         } catch (Exception e) {
             System.out.println("Uncaught exception - " + e.getLocalizedMessage());
             logger.appendLog(e.toString(), e.getStackTrace());
@@ -51,5 +49,14 @@ public class Main {
 
         logger = new SimpleLogger(fs.LogsFolder + "logs" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")).toLowerCase() + ".log");
+    }
+
+    private static void FrackFix() {
+        FrackFixer frackFixer = new FrackFixer(fs, Config.milliSecondsToTimeOut);
+        FrackFixer.logger = logger;
+        frackFixer.continueExecution = true;
+        frackFixer.IsFixing = true;
+        frackFixer.FixAll();
+        frackFixer.IsFixing = false;
     }
 }

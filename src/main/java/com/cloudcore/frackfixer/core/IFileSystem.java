@@ -209,21 +209,22 @@ public abstract class IFileSystem {
     public CloudCoin LoadCoin(String fileName) {
         CloudCoin[] coins = Utils.LoadJson(fileName);
 
+        if (coins != null)
+            System.out.println("loaded coins: " + coins.length);
+        else
+            System.out.println("or not");
         if (coins != null && coins.length > 0)
             return coins[0];
         return null;
     }
 
     public void overWrite(String folder, CloudCoin cc) {
-        //CoinUtils cu = new CoinUtils(cc);
-        final String quote = "\"";
-        final String tab = "\t";
-        String wholeJson = "{" + System.lineSeparator();
-        String json = Utils.createGson().toJson(cc, String.class);
+        String json = Utils.createGson().toJson(cc);
 
         try {
-            Files.write(Paths.get(folder + cc.getFullFilePath() + ".stack"), wholeJson.getBytes(StandardCharsets.UTF_8));
+            Files.write(Paths.get(folder + cc.getFullFilePath() + ".stack"), json.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }

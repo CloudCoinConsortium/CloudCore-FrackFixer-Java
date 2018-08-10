@@ -22,18 +22,18 @@ public class FileSystem extends IFileSystem {
     public FileSystem(String RootPath) {
         this.RootPath = RootPath;
 
-        ImportFolder = RootPath + File.separator + Config.TAG_IMPORT + File.separator;
         DetectedFolder = RootPath + File.separator + Config.TAG_DETECTED + File.separator;
         SuspectFolder = RootPath + File.separator + Config.TAG_SUSPECT + File.separator;
-        ExportFolder = RootPath + File.separator + Config.TAG_EXPORT + File.separator;
 
         BankFolder = RootPath + File.separator + Config.TAG_BANK + File.separator;
         CounterfeitFolder = RootPath + File.separator + Config.TAG_COUNTERFEIT + File.separator;
         FrackedFolder = RootPath + File.separator + Config.TAG_FRACKED + File.separator;
-        LostFolder = RootPath + File.separator + Config.TAG_LOST + File.separator;
 
-        TemplateFolder = RootPath + File.separator + Config.TAG_TEMPLATES + File.separator;
         LogsFolder = RootPath + File.separator + Config.TAG_LOGS + File.separator;
+
+        LostFolder = RootPath + File.separator + Config.TAG_LOST + File.separator;
+        TemplateFolder = RootPath + File.separator + Config.TAG_TEMPLATES + File.separator;
+        ExportFolder = RootPath + File.separator + Config.TAG_EXPORT + File.separator;
     }
 
 
