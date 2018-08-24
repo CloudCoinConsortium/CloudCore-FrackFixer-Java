@@ -265,17 +265,19 @@ public class Node {
                 long ts = after - before;
                 get_ticketResponse.milliseconds = (int) ts;
 
+                TicketResponse response = Utils.createGson().fromJson(get_ticketResponse.fullResponse, TicketResponse.class);
+
                 if (get_ticketResponse.fullResponse.contains("ticket")) {
-                    String[] KeyPairs = get_ticketResponse.fullResponse.split(",");
+                    /*String[] KeyPairs = get_ticketResponse.fullResponse.split(",");
                     String message = KeyPairs[3];
                     int startTicket = Utils.ordinalIndexOf(message, "\"", 3) + 2;
                     int endTicket = Utils.ordinalIndexOf(message, "\"", 4) - startTicket;
-                    get_ticketResponse.outcome = message.substring(startTicket - 1, endTicket + 1); //This is the ticket or message
+                    get_ticketResponse.outcome = message.substring(startTicket - 1, endTicket + 1); //This is the ticket or message*/
+                    get_ticketResponse.outcome = response.message;
                     get_ticketResponse.success = true;
                     HasTicket = true;
                     ticketHistory = TicketHistory.Success;
                     Ticket = get_ticketResponse.outcome;
-
                 } else {
                     get_ticketResponse.success = false;
                     HasTicket = false;
