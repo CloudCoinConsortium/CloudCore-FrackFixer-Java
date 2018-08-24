@@ -110,6 +110,7 @@ public class FrackFixer {
             updateLog(response);
 
             frackedCC = fileUtils.LoadCoin(frackedFiles[i].toString());
+            frackedCC.folder = frackedFiles[i].getName();
             if (frackedCC == null) {
                 updateLog(frackedFiles[i] + " is null, skipping");
                 continue;
@@ -121,25 +122,25 @@ public class FrackFixer {
                 break;
             }
             CoinUtils.consoleReport(frackedCC);
-            switch (frackedCC.folder.toLowerCase()) {
-                case "bank":
-                    this.totalValueToBank++;
-                    this.fileUtils.overWrite(this.fileUtils.BankFolder, frackedCC);
-                    this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                    updateLog("CloudCoin was moved to Bank.");
-                    break;
-                case "counterfeit":
-                    this.totalValueToCounterfeit++;
-                    this.fileUtils.overWrite(this.fileUtils.CounterfeitFolder, frackedCC);
-                    this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                    updateLog("CloudCoin was moved to Trash.");
-                    break;
-                default://Move back to fracked folder
-                    this.totalValueToFractured++;
-                    this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                    this.fileUtils.overWrite(this.fileUtils.FrackedFolder, frackedCC);
-                    updateLog("CloudCoin was moved back to Fracked folder.");
-                    break;
+
+            frackedCC.setFullFilePath(frackedCC.folder + CoinUtils.getDenomination(frackedCC) + ".CloudCoin." + frackedCC.nn + "." + frackedCC.getSn());
+            if (fileUtils.BankFolder.equals(frackedCC.folder)) {
+                this.totalValueToBank++;
+                this.fileUtils.overWrite(this.fileUtils.BankFolder, frackedCC);
+                this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
+                updateLog("CloudCoin was moved to Bank.");
+            }
+            else if (fileUtils.CounterfeitFolder.equals(frackedCC.folder)) {
+                this.totalValueToCounterfeit++;
+                this.fileUtils.overWrite(this.fileUtils.CounterfeitFolder, frackedCC);
+                this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
+                updateLog("CloudCoin was moved to Trash.");
+            }
+            else {
+                this.totalValueToFractured++;
+                this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
+                this.fileUtils.overWrite(this.fileUtils.FrackedFolder, frackedCC);
+                updateLog("CloudCoin was moved back to Fracked folder.");
             }
         }
 

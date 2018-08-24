@@ -222,7 +222,7 @@ public abstract class IFileSystem {
         String json = Utils.createGson().toJson(cc);
 
         try {
-            Files.write(Paths.get(folder + cc.getFullFilePath() + ".stack"), json.getBytes(StandardCharsets.UTF_8));
+            Files.write(Paths.get(cc.getFullFilePath() + ".stack"), json.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();

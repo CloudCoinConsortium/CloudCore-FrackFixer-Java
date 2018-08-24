@@ -36,9 +36,11 @@ public class CloudCoin {
 
     public transient String[] pan = new String[Config.NodeCount];
 
-    private transient String fullFilePath;
-
     public transient String folder;
+
+    public transient String currentFilename;
+
+    private transient String fullFilePath;
 
     public transient int denomination;
     public transient String DetectionResult;
