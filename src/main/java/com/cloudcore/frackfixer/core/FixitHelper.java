@@ -1,8 +1,11 @@
 package com.cloudcore.frackfixer.core;
 
 public class FixitHelper {
-    //  instance variables
-    public int[] trustedServers = new int[8];
+
+
+    /* Fields */
+
+    public int[] trustedServers;
 
     // Each servers only trusts eight others
     public int[] trustedTriad1;
@@ -14,7 +17,7 @@ public class FixitHelper {
     public String[] ans2;
     public String[] ans3;
     public String[] ans4;
-    public String[] currentAns = new String[4];
+    public String[] currentAns;
     public boolean finished = false;
 
     public boolean triad_1_is_ready = false;
@@ -23,11 +26,11 @@ public class FixitHelper {
     public boolean triad_4_is_ready = false;
     public boolean currentTriadReady = false;
 
-    // All triads have been tried
+
+    /* Methods */
+
+
     public FixitHelper(int raidaNumber, String[] ans) {
-        // Create an array so we can make sure all the servers submitted are within this allowabel group of servers.
-        int[] trustedServers = new int[]{33, 33, 33, 33, 33, 33, 33, 33};  // bogus data to make sure initializtion happened
-        // FIND TRUSTED NEIGHBOURS
         switch (raidaNumber) {
             case 0:
                 this.trustedServers = new int[]{19, 20, 21, 24, 1, 4, 5, 6};
@@ -105,13 +108,11 @@ public class FixitHelper {
                 this.trustedServers = new int[]{18, 19, 20, 23, 0, 3, 4, 5};
                 break;
         }
-        // end switch raidaNumber
         this.trustedTriad1 = new int[]{this.trustedServers[0], this.trustedServers[1], this.trustedServers[3]};
         this.trustedTriad2 = new int[]{this.trustedServers[1], this.trustedServers[2], this.trustedServers[4]};
         this.trustedTriad3 = new int[]{this.trustedServers[3], this.trustedServers[5], this.trustedServers[6]};
         this.trustedTriad4 = new int[]{this.trustedServers[4], this.trustedServers[6], this.trustedServers[7]};
         this.currentTriad = this.trustedTriad1;
-        // Try the first tried first
 
         ans1 = new String[]{ans[trustedTriad1[0]], ans[trustedTriad1[1]], ans[trustedTriad1[2]]};
         ans2 = new String[]{ans[trustedTriad2[0]], ans[trustedTriad2[1]], ans[trustedTriad2[2]]};
@@ -119,7 +120,7 @@ public class FixitHelper {
         ans4 = new String[]{ans[trustedTriad4[0]], ans[trustedTriad4[1]], ans[trustedTriad4[2]]};
 
         currentAns = ans1;
-    }// end of constructor
+    }
 
 
     public void setCornerToCheck(int corner) {
@@ -144,39 +145,33 @@ public class FixitHelper {
                 this.finished = true;
                 break;
         }
-        // end switch
-    }//end set corner to check
+    }
 
-    /***
+    /**
      * This changes the Triads that will be used
      */
     public void setCornerToTest(int mode) {
-
         switch (mode) {
             case 1:
                 currentTriad = trustedTriad1;
                 currentAns = ans1;
-                currentTriadReady = true;
                 break;
             case 2:
                 currentTriad = trustedTriad2;
                 currentAns = ans2;
-                currentTriadReady = true;
                 break;
             case 3:
                 currentTriad = trustedTriad3;
                 currentAns = ans3;
-                currentTriadReady = true;
                 break;
             case 4:
                 currentTriad = trustedTriad4;
                 currentAns = ans4;
-                currentTriadReady = true;
                 break;
             default:
                 this.finished = true;
-                break;
-        }//end switch
-    }//End fix Guid
-
+                return;
+        }
+        currentTriadReady = true;
+    }
 }

@@ -11,7 +11,6 @@ public class Config {
 
     public static final int YEARSTILEXPIRE = 2;
 
-    public static String TAG_IMPORT = "Import";
     public static String TAG_DETECTED = "Detected";
     public static String TAG_SUSPECT = "Suspect";
     public static final String TAG_EXPORT = "Export";

@@ -10,86 +10,95 @@ import org.asynchttpclient.*;
 
 import static org.asynchttpclient.Dsl.asyncHttpClient;
 
-/*
+/**
  * This Class Contains the properties of a RAIDA node.
  */
 public class Node {
+
+
+    /* Fields */
 
     public enum TicketHistory {Untried, Failed, Success}
 
     private AsyncHttpClient client;
     private Gson gson;
 
-    public int NodeNumber;
-    public String FullUrl;
-    public MultiDetectResponse MultiResponse = new MultiDetectResponse();
+    public int nodeNumber;
+    public String fullUrl;
+    public MultiDetectResponse multiResponse = new MultiDetectResponse();
 
-    public boolean FailsDetect = false;
-    public boolean FailsFix = false;
-    public boolean FailsEcho = false;
+    public boolean failsDetect;
+    public boolean failsFix;
+    public boolean failsEcho;
 
     public TicketHistory ticketHistory = TicketHistory.Untried;
-    public String Ticket = "";
-    public boolean HasTicket = false;
+    public String ticket = "";
+    public boolean hasTicket;
 
-    //Constructor
-    public Node(int NodeNumber) {
-        this.NodeNumber = NodeNumber;
-        FullUrl = GetFullURL();
-        System.out.println(FullUrl);
 
-        client = asyncHttpClient();
-        gson = Utils.createGson();
-    }
+    /* Constructors */
 
-    public Node(int NodeNumber, RAIDANode node) {
-        this.NodeNumber = NodeNumber;
-        FullUrl = "https://" + node.urls[0].url + "/service/";
+    public Node(int nodeNumber) {
+        this.nodeNumber = nodeNumber;
+        fullUrl = getFullURL();
+        System.out.println(fullUrl);
 
         client = asyncHttpClient();
         gson = Utils.createGson();
     }
 
-    public String GetFullURL() {
-        return "https://raida" + (NodeNumber - 1) + ".cloudcoin.global/service/";
+    public Node(int nodeNumber, RAIDANode node) {
+        this.nodeNumber = nodeNumber;
+        fullUrl = "https://" + node.urls[0].url + "/service/";
+
+        client = asyncHttpClient();
+        gson = Utils.createGson();
+    }
+
+
+    /* Methods */
+
+    public String getFullURL() {
+        return "https://raida" + (nodeNumber - 1) + ".cloudcoin.global/service/";
     }
 
     public void resetTicket() {
-        HasTicket = false;
+        hasTicket = false;
         ticketHistory = TicketHistory.Untried;
-        Ticket = "";
+        ticket = "";
     }
 
     public void newCoin() {
-        HasTicket = false;
+        hasTicket = false;
         ticketHistory = TicketHistory.Untried;
-        Ticket = "";
-        FailsDetect = false;
+        ticket = "";
+        failsDetect = false;
     }
 
     public class MultiDetectResponse {
         public Response[] responses;
     }
 
-    //int[] nn, int[] sn, String[] an, String[] pan, int[] d, int timeout
+    public boolean isFailed() {
+        return failsEcho || failsDetect;
+    }
+
     public CompletableFuture<MultiDetectResponse> MultiDetect() {
-        /*PREPARE REQUEST*/
-        RAIDA raida = RAIDA.ActiveRAIDA;
+        RAIDA raida = RAIDA.activeRAIDA;
         int[] nn = raida.multiRequest.nn;
         int[] sn = raida.multiRequest.sn;
-        String[] an = raida.multiRequest.an[NodeNumber - 1];
-        String[] pan = raida.multiRequest.pan[NodeNumber - 1];
+        String[] an = raida.multiRequest.an[nodeNumber - 1];
+        String[] pan = raida.multiRequest.pan[nodeNumber - 1];
         int[] d = raida.multiRequest.d;
         int timeout = raida.multiRequest.timeout;
 
-        return MultiDetect(nn, sn, an, pan, d, timeout);
+        return multiDetect(nn, sn, an, pan, d, timeout);
     }
 
-    public CompletableFuture<MultiDetectResponse> MultiDetect(int[] nn, int[] sn, String[] an, String[] pan, int[] d, int timeout) {
+    public CompletableFuture<MultiDetectResponse> multiDetect(int[] nn, int[] sn, String[] an, String[] pan, int[] d, int timeout) {
         Response[] response = new Response[nn.length];
-        for (int i = 0; i < nn.length; i++) {
+        for (int i = 0; i < nn.length; i++)
             response[i] = new Response();
-        }
 
         ArrayList<Param> formParams = new ArrayList<>();
         for (int i = 0; i < nn.length; i++) {
@@ -98,14 +107,13 @@ public class Node {
             formParams.add(new Param("ans[]", an[i]));
             formParams.add(new Param("pans[]", an[i]));
             formParams.add(new Param("denomination[]", Integer.toString(d[i])));
-            // System.out.println("url is " + this.fullUrl + "detect?nns[]=" + nn[i] + "&sns[]=" + sn[i] + "&ans[]=" + an[i] + "&pans[]=" + pan[i] + "&denomination[]=" + d[i]);
-            response[i].fullRequest = this.FullUrl + "detect?nns[]=" + nn[i] + "&sns[]=" + sn[i] + "&ans[]=" + an[i] + "&pans[]=" + pan[i] + "&denomination[]=" + d[i]; // Record what was sent
+            response[i].fullRequest = this.fullUrl + "detect?nns[]=" + nn[i] + "&sns[]=" + sn[i] + "&ans[]=" + an[i] + "&pans[]=" + pan[i] + "&denomination[]=" + d[i];
+            // System.out.println(response[i].fullRequest);
         }
 
-        /* MAKE REQUEST */
         final long before = System.currentTimeMillis();
 
-        return client.preparePost(FullUrl + "multi_detect")
+        return client.preparePost(fullUrl + "multi_detect")
                 .setFormParams(formParams)
                 .setRequestTimeout(timeout)
                 .execute(new AsyncHandler() {
@@ -131,14 +139,12 @@ public class Node {
 
                     @Override
                     public MultiDetectResponse onCompleted() {
-                        /* MAKE REQUEST */
                         long after, ts;
 
                         org.asynchttpclient.Response httpResponse = builder.build();
                         String totalResponse = httpResponse.getResponseBody();
                         try {
                             if (200 == builder.build().getStatusCode()) {
-                                /* PROCESS REQUEST*/
                                 after = System.currentTimeMillis();
                                 ts = after - before;
 
@@ -159,10 +165,10 @@ public class Node {
                                     }
                                 }
 
-                                MultiResponse.responses = response;
-                                return MultiResponse;
+                                multiResponse.responses = response;
+                                return multiResponse;
                             } else { // 404 not found or 500 error.
-                                System.out.println("RAIDA " + NodeNumber + " had an error: " + httpResponse.getStatusCode());
+                                System.out.println("RAIDA " + nodeNumber + " had an error: " + httpResponse.getStatusCode());
                                 after = System.currentTimeMillis();
                                 ts = after - before;
 
@@ -170,14 +176,14 @@ public class Node {
                                     response[i].outcome = "error";
                                     response[i].fullResponse = Integer.toString(httpResponse.getStatusCode());
                                 }
-                                MultiResponse.responses = response;
-                                return MultiResponse;
+                                multiResponse.responses = response;
+                                return multiResponse;
                             }
                         } catch (Exception e) {
                             System.out.println("Exception: " + e.getLocalizedMessage());
                             e.printStackTrace();
                         }
-                        return MultiResponse;
+                        return multiResponse;
                     }
 
                     @Override
@@ -191,7 +197,7 @@ public class Node {
                                     response[i].outcome = "noresponse";
                                     response[i].fullResponse = e.getLocalizedMessage();
                                 }
-                                MultiResponse.responses = response;
+                                multiResponse.responses = response;
                                 return;
                             default:
                                 System.out.println("Node#MD" + e.getLocalizedMessage());
@@ -199,7 +205,7 @@ public class Node {
                                     response[i].outcome = "error";
                                     response[i].fullResponse = e.getLocalizedMessage();
                                 }
-                                MultiResponse.responses = response;
+                                multiResponse.responses = response;
                                 return;
                         }
                     }
@@ -217,16 +223,17 @@ public class Node {
      * @param pan String proposed authenticity number (to replace the wrong AN the RAIDA has)
      * @return String status sent back from the server: sucess, fail or error.
      */
-    public Response Fix(int[] triad, String m1, String m2, String m3, String pan) {
+    public Response fix(int[] triad, String m1, String m2, String m3, String pan) {
         Response fixResponse = new Response();
         long before = System.currentTimeMillis();
-        fixResponse.fullRequest = FullUrl + "fix?fromserver1=" + triad[0] + "&message1=" + m1 + "&fromserver2=" + triad[1] + "&message2=" + m2 + "&fromserver3=" + triad[2] + "&message3=" + m3 + "&pan=" + pan;
-        long after = System.currentTimeMillis();
-        long ts = after - before;
-        fixResponse.milliseconds = (int) ts;
+        fixResponse.fullRequest = fullUrl + "fix?fromserver1=" + triad[0] + "&message1=" + m1 + "&fromserver2=" + triad[1] + "&message2=" + m2 + "&fromserver3=" + triad[2] + "&message3=" + m3 + "&pan=" + pan;
 
         try {
-            fixResponse.fullResponse = Utils.GetHtmlFromURL(fixResponse.fullRequest);
+            fixResponse.fullResponse = Utils.getHtmlFromURL(fixResponse.fullRequest);
+            long after = System.currentTimeMillis();
+            long ts = after - before;
+            fixResponse.milliseconds = (int) ts;
+
             if (fixResponse.fullResponse.contains("success")) {
                 fixResponse.outcome = "success";
                 fixResponse.success = true;
@@ -252,15 +259,14 @@ public class Node {
      * @param d int that is the Denomination of the Coin
      * @return Response Object.
      */
-    public CompletableFuture<Response> GetTicket(int nn, int sn, String an, int d) {
+    public CompletableFuture<Response> getTicket(int nn, int sn, String an, int d) {
         return CompletableFuture.supplyAsync(() -> {
-            RAIDA raida = RAIDA.GetInstance();
             Response get_ticketResponse = new Response();
-            get_ticketResponse.fullRequest = FullUrl + "get_ticket?nn=" + nn + "&sn=" + sn + "&an=" + an + "&pan=" + an + "&denomination=" + d;
+            get_ticketResponse.fullRequest = fullUrl + "get_ticket?nn=" + nn + "&sn=" + sn + "&an=" + an + "&pan=" + an + "&denomination=" + d;
             long before = System.currentTimeMillis();
 
             try {
-                get_ticketResponse.fullResponse = Utils.GetHtmlFromURL(get_ticketResponse.fullRequest);
+                get_ticketResponse.fullResponse = Utils.getHtmlFromURL(get_ticketResponse.fullRequest);
                 long after = System.currentTimeMillis();
                 long ts = after - before;
                 get_ticketResponse.milliseconds = (int) ts;
@@ -268,19 +274,13 @@ public class Node {
                 TicketResponse response = Utils.createGson().fromJson(get_ticketResponse.fullResponse, TicketResponse.class);
 
                 if (get_ticketResponse.fullResponse.contains("ticket")) {
-                    /*String[] KeyPairs = get_ticketResponse.fullResponse.split(",");
-                    String message = KeyPairs[3];
-                    int startTicket = Utils.ordinalIndexOf(message, "\"", 3) + 2;
-                    int endTicket = Utils.ordinalIndexOf(message, "\"", 4) - startTicket;
-                    get_ticketResponse.outcome = message.substring(startTicket - 1, endTicket + 1); //This is the ticket or message*/
-                    get_ticketResponse.outcome = response.message;
+                    ticket = get_ticketResponse.outcome = response.message;
                     get_ticketResponse.success = true;
-                    HasTicket = true;
+                    hasTicket = true;
                     ticketHistory = TicketHistory.Success;
-                    Ticket = get_ticketResponse.outcome;
                 } else {
                     get_ticketResponse.success = false;
-                    HasTicket = false;
+                    hasTicket = false;
                     ticketHistory = TicketHistory.Failed;
                 }
 
@@ -289,7 +289,7 @@ public class Node {
                 get_ticketResponse.outcome = "error";
                 get_ticketResponse.fullResponse = e.getMessage();
                 get_ticketResponse.success = false;
-                HasTicket = false;
+                hasTicket = false;
                 ticketHistory = TicketHistory.Failed;
             }
             return get_ticketResponse;

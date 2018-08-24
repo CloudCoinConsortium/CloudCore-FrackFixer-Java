@@ -136,6 +136,9 @@ public class CoinUtils {
         }
     }
 
+
+    /* Hex Methods */
+
     /**
      * Returns a String containing a hex representation of the last pown results. The results are encoded as such:
      * <br>

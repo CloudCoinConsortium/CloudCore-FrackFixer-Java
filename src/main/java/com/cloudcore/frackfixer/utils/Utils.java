@@ -35,7 +35,7 @@ public class Utils {
                 .create();
     }
 
-    public static CloudCoin[] LoadJson(String filename) {
+    public static CloudCoin[] loadJson(String filename) {
         try {
             byte[] json = Files.readAllBytes(Paths.get(filename));
             Gson gson = new Gson();
@@ -47,7 +47,7 @@ public class Utils {
         }
     }
 
-    public static String RandomString(int length) {
+    public static String randomString(int length) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < length; i++) {
             builder.append(chars.charAt(random.nextInt(chars.length())));
@@ -72,7 +72,7 @@ public class Utils {
         return String.format("%" + length + "s", string).replace(' ', padding);
     }
 
-    public static String GetHtmlFromURL(String urlAddress) {
+    public static String getHtmlFromURL(String urlAddress) {
         String data = "";
 
         try {

@@ -16,8 +16,7 @@ public class Grader {
                 coin.folder = FS.FrackedFolder;
             else
                 coin.folder = FS.BankFolder;
-        }
-        else {
+        } else {
             if (isHealthySimple(coin.pown))
                 coin.folder = FS.CounterfeitFolder;
             else
@@ -37,7 +36,7 @@ public class Grader {
     /**
      * Checks to see if the pown result is fracked.
      *
-     * @return true if the pown result contains more than 5 fracked grades.
+     * @return true if the pown result contains any fracked grades.
      */
     public static boolean isFrackedSimple(String pown) {
         return (pown.indexOf('f') != -1);

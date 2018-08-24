@@ -117,6 +117,21 @@ public class FileSystem {
     }
 
     /**
+     * Deletes a file from a folder.
+     *
+     * @param folder     the folder to delete from.
+     * @param filename   the file to delete.
+     */
+    public static void removeFile(String folder, String filename) {
+        try {
+            Files.deleteIfExists(Paths.get(folder + filename));
+        } catch (IOException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Deletes CloudCoins files from a specific folder.
      *
      * @param cloudCoins the ArrayList of CloudCoins to delete.
@@ -167,7 +182,7 @@ public class FileSystem {
     }
 
     public CloudCoin loadCoin(String fileName) {
-        CloudCoin[] coins = Utils.LoadJson(fileName);
+        CloudCoin[] coins = Utils.loadJson(fileName);
 
         if (coins != null)
             System.out.println("loaded coins: " + coins.length);
@@ -210,7 +225,7 @@ public class FileSystem {
 
             //if (coinExists > 0)
             //{
-            //    String suffix = Utils.RandomString(16);
+            //    String suffix = Utils.randomString(16);
             //    fileName += suffix.toLowerCase();
             //}
 
@@ -244,7 +259,7 @@ public class FileSystem {
         //int coinExists = (int) Arrays.stream(folderCoins.toArray(new CloudCoin[0])).filter(x -> x.getSn() == coin.getSn()).count();
 
         if (coinExists > 0 && !replaceCoins) {
-            String suffix = Utils.RandomString(16);
+            String suffix = Utils.randomString(16);
             fileName += suffix.toLowerCase();
         }
         try {

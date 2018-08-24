@@ -5,14 +5,11 @@ import com.cloudcore.frackfixer.utils.CoinUtils;
 import com.cloudcore.frackfixer.utils.SimpleLogger;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class FrackFixer {
 
 
-    /* INSTANCE VARIABLES */
+    /* Fields */
 
     public static SimpleLogger logger;
 
@@ -24,65 +21,52 @@ public class FrackFixer {
     private int totalValueToCounterfeit;
 
     public boolean continueExecution = true;
-    public boolean IsFixing = false;
+    public boolean isFixing = false;
 
 
-    /* CONSTRUCTORS */
+    /* Constructors */
 
     public FrackFixer(FileSystem fileUtils, int timeout) {
         this.fileUtils = fileUtils;
-        raida = RAIDA.GetInstance();
+        raida = RAIDA.getInstance();
         totalValueToBank = 0;
         totalValueToCounterfeit = 0;
         totalValueToFractured = 0;
     }
 
-    public String fixOneGuidCorner(int raida_ID, CloudCoin cc, int corner, int[] trustedTriad) {
-        //RAIDA raida = RAIDA.GetInstance();
 
-        /*1. WILL THE BROKEN RAIDA FIX? check to see if it has problems echo, detect, or fix. */
-        if (raida.nodes[raida_ID].FailsFix || raida.nodes[raida_ID].FailsEcho || raida.nodes[raida_ID].FailsEcho) {
+    /* Methods */
+
+    public boolean fixOneGuidCorner(int raida_ID, CloudCoin cc, int corner, int[] triad) {
+        if (raida.nodes[raida_ID].isFailed() || raida.nodes[raida_ID].failsFix) {
             String response = "RAIDA Fails Echo or Fix. Try again when RAIDA online.";
             updateLog(response);
-            return response;
+            return false;
         } else {
-            /*2. ARE ALL TRUSTED RAIDA IN THE CORNER READY TO HELP?*/
+            if (!raida.nodes[triad[0]].isFailed() || !raida.nodes[triad[1]].isFailed() || !raida.nodes[triad[2]].isFailed()) {
+                String[] ans = {cc.an.get(triad[0]), cc.an.get(triad[1]), cc.an.get(triad[2])};
+                raida.getTickets(triad, ans, cc.nn, cc.getSn(), CoinUtils.getDenomination(cc), 3000);
 
-            if (!raida.nodes[trustedTriad[0]].FailsEcho || !raida.nodes[trustedTriad[0]].FailsDetect || !raida.nodes[trustedTriad[1]].FailsEcho || !!raida.nodes[trustedTriad[1]].FailsDetect || !raida.nodes[trustedTriad[2]].FailsEcho || !raida.nodes[trustedTriad[2]].FailsDetect) {
-                /*3. GET TICKETS AND UPDATE RAIDA STATUS TICKETS*/
-                String[] ans = {cc.an.get(trustedTriad[0]), cc.an.get(trustedTriad[1]), cc.an.get(trustedTriad[2])};
-                raida.GetTickets(trustedTriad, ans, cc.nn, cc.getSn(), CoinUtils.getDenomination(cc), 3000);
-
-                /*4. ARE ALL TICKETS GOOD?*/
-                if (raida.nodes[trustedTriad[0]].HasTicket && raida.nodes[trustedTriad[1]].HasTicket && raida.nodes[trustedTriad[2]].HasTicket) {
-                    /*5.T YES, so REQUEST FIX*/
-                    //DetectionAgent da = new DetectionAgent(raida_ID, 5000);
+                if (raida.nodes[triad[0]].hasTicket && raida.nodes[triad[1]].hasTicket && raida.nodes[triad[2]].hasTicket) {
                     if (!continueExecution) {
-                        String response = "Aborting Fix for new operation.";
-                        updateLog(response);
-                        return response;
+                        updateLog("Aborting Fix for new operation.");
+                        return false;
                     }
-                    Response fixResponse = RAIDA.GetInstance().nodes[raida_ID].Fix(trustedTriad, raida.nodes[trustedTriad[0]].Ticket, raida.nodes[trustedTriad[1]].Ticket, raida.nodes[trustedTriad[2]].Ticket, cc.an.get(raida_ID));
-                    /*6. DID THE FIX WORK?*/
+                    Response fixResponse = RAIDA.getInstance().nodes[raida_ID].fix(triad, raida.nodes[triad[0]].ticket, raida.nodes[triad[1]].ticket, raida.nodes[triad[2]].ticket, cc.an.get(raida_ID));
                     if (fixResponse.success) {
-                        String response = "RAIDA" + raida_ID + " unfracked successfully.";
-                        updateLog(response);
-                        return response;
+                        updateLog("RAIDA" + raida_ID + " unfracked successfully.");
+                        return true;
                     } else {
-                        String response = "RAIDA failed to accept tickets on corner " + corner;
-                        updateLog(response);
-                        return response;
+                        updateLog("RAIDA failed to accept tickets on corner " + corner);
+                        return false;
                     }
-                } else { //no three good tickets
-                    String response = "Trusted servers failed to provide tickets for corner " + corner;
-                    updateLog(response);
-                    return response;
+                } else {
+                    updateLog("Trusted servers failed to provide tickets for corner " + corner);
+                    return false;
                 }
             }
-
-            String response = "One or more of the trusted triad will not echo and detect. So not trying.";
-            updateLog(response);
-            return response;
+            updateLog("One or more of the trusted triad will not echo and detect. So not trying.");
+            return false;
         }
     }
 
@@ -90,12 +74,11 @@ public class FrackFixer {
     /* PUBLIC METHODS */
 
     public int[] fixAll() {
-        IsFixing = true;
-        continueExecution = true;
+        isFixing = continueExecution = true;
         int[] results = new int[3];
         File[] frackedFiles = FileSystem.GetFilesArray(fileUtils.FrackedFolder, Config.allowedExtensions);
 
-        CloudCoin frackedCC;
+        CloudCoin coin;
 
         if (frackedFiles.length < 0)
             updateLog("You have no fracked coins.");
@@ -103,41 +86,40 @@ public class FrackFixer {
         updateLog("Fixing fracked coins: " + frackedFiles.length);
         for (int i = 0; i < frackedFiles.length; i++) {
             if (!continueExecution) {
-                System.out.println("Aborting Fix 1");
+                updateLog("Aborting Fix 1");
                 break;
             }
-            String response = "Unfracking coin " + (i + 1) + " of " + frackedFiles.length;
-            updateLog(response);
+            updateLog("Unfracking coin " + (i + 1) + " of " + frackedFiles.length);
 
-            frackedCC = fileUtils.loadCoin(frackedFiles[i].toString());
-            frackedCC.currentFilename = frackedFiles[i].getName();
-            if (frackedCC == null) {
+            coin = fileUtils.loadCoin(frackedFiles[i].toString());
+            coin.currentFilename = frackedFiles[i].getName();
+            if (coin == null) {
                 updateLog(frackedFiles[i] + " is null, skipping");
                 continue;
             }
-            CoinUtils.consoleReport(frackedCC);
-            frackedCC = fixCoin(frackedCC); // Will attempt to unfrack the coin.
+            CoinUtils.consoleReport(coin);
+            coin = fixCoin(coin);
             if (!continueExecution) {
                 updateLog("Aborting Fix 2");
                 break;
             }
-            CoinUtils.consoleReport(frackedCC);
+            CoinUtils.consoleReport(coin);
 
-            frackedCC.setFullFilePath(frackedCC.folder + CoinUtils.getDenomination(frackedCC) + ".CloudCoin." + frackedCC.nn + "." + frackedCC.getSn());
-            if (fileUtils.BankFolder.equals(frackedCC.folder)) {
+            coin.setFullFilePath(coin.folder + CoinUtils.getDenomination(coin) + ".CloudCoin." + coin.nn + "." + coin.getSn());
+            if (fileUtils.BankFolder.equals(coin.folder)) {
                 this.totalValueToBank++;
-                fileUtils.moveCoin(frackedCC, fileUtils.FrackedFolder, frackedCC.folder, false);
+                fileUtils.moveCoin(coin, fileUtils.FrackedFolder, coin.folder, false);
                 updateLog("CloudCoin was moved to Bank.");
             }
-            else if (fileUtils.CounterfeitFolder.equals(frackedCC.folder)) {
+            else if (fileUtils.CounterfeitFolder.equals(coin.folder)) {
                 this.totalValueToCounterfeit++;
-                fileUtils.moveCoin(frackedCC, fileUtils.FrackedFolder, frackedCC.folder, false);
+                fileUtils.moveCoin(coin, fileUtils.FrackedFolder, coin.folder, false);
                 updateLog("CloudCoin was moved to Counterfeit.");
             }
             else {
                 this.totalValueToFractured++;
-                this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                this.fileUtils.overWrite(this.fileUtils.FrackedFolder, frackedCC);
+                FileSystem.removeFile(fileUtils.FrackedFolder, frackedFiles[i].getName());
+                this.fileUtils.overWrite(this.fileUtils.FrackedFolder, coin);
                 updateLog("CloudCoin was moved back to Fracked folder.");
             }
         }
@@ -145,79 +127,45 @@ public class FrackFixer {
         results[0] = this.totalValueToBank;
         results[1] = this.totalValueToCounterfeit; // System.out.println("Counterfeit and Moved to trash: "+totalValueToCounterfeit);
         results[2] = this.totalValueToFractured; // System.out.println("Fracked and Moved to Fracked: "+ totalValueToFractured);
-        IsFixing = false;
+        isFixing = false;
         continueExecution = true;
         updateLog("Finished Frack Fixing. Fixed " + totalValueToBank + " CloudCoins and moved them into Bank Folder");
-        if (totalValueToBank > 0)
-            ;//raida.OnLogRecieved(pge);
-
         return results;
     }
 
 
-    public boolean deleteCoin(String path) {
-        // System.out.println("Deleteing Coin: "+path + this.fileName + extension);
-        try {
-            Files.delete(Paths.get(path));
-        } catch (IOException e) {
-            System.out.println(e);
-            return false;
-            //  CoreLogger.Log(e.toString());
-        }
-        return true;
-    }
+    public CloudCoin fixCoin(CloudCoin coin) {
+        FixitHelper fixer;
 
-
-    public CloudCoin fixCoin(CloudCoin brokeCoin) {
-        /*0. RESET TICKETS IN RAIDA STATUS TO EMPTY*/
-        //RAIDA_Status.resetTickets();
-        for (Node node : RAIDA.GetInstance().nodes) node.resetTicket();
-
-        /*0. RESET THE DETECTION to TRUE if it is a new COIN */
-        for (Node node : RAIDA.GetInstance().nodes) node.newCoin();
-
-        //RAIDA_Status.newCoin();
+        for (Node node : RAIDA.getInstance().nodes) node.resetTicket();
+        for (Node node : RAIDA.getInstance().nodes) node.newCoin();
 
         long before = System.currentTimeMillis();
 
-        String fix_result = "";
-        FixitHelper fixer;
-
-        /*START*/
-        /*1. PICK THE CORNER TO USE TO TRY TO FIX */
-        int corner = 1;
-        // For every guid, check to see if it is fractured
+        int corner;
         for (int i = 0; i < 25; i++) {
             if (!continueExecution) {
                 System.out.println("Stopping Execution");
-                return brokeCoin;
+                return coin;
             }
-            //  System.out.println("Past Status for " + i + ", " + brokeCoin.pastStatus[i]);
 
-            if (CoinUtils.getPastStatus(brokeCoin, i).toLowerCase() != "pass")//will try to fix everything that is not perfect pass.
-            {
+            if (!"pass".equals(CoinUtils.getPastStatus(coin, i))) {
                 updateLog("Attempting to fix RAIDA " + i);
 
-                fixer = new FixitHelper(i, brokeCoin.an.toArray(new String[0]));
-
-                //trustedServerAns = new String[] { brokeCoin.ans[fixer.currentTriad[0]], brokeCoin.ans[fixer.currentTriad[1]], brokeCoin.ans[fixer.currentTriad[2]] };
+                fixer = new FixitHelper(i, coin.an.toArray(new String[0]));
 
                 corner = 1;
                 while (!fixer.finished) {
                     if (!continueExecution) {
                         System.out.println("Stopping Execution");
-                        return brokeCoin;
+                        return coin;
                     }
-                    updateLog("Using corner " + corner + " Pown is " + brokeCoin.pown);
-                    fix_result = fixOneGuidCorner(i, brokeCoin, corner, fixer.currentTriad);
-                    // updateLog(" fix_result: " + fix_result + " for corner " + corner);
-                    if (fix_result.contains("success")) {
-                        //Fixed. Do the fixed stuff
-                        CoinUtils.setPastStatus(brokeCoin, "pass", i);
+                    updateLog("Using corner " + corner + " Pown is " + coin.pown);
+                    if (fixOneGuidCorner(i, coin, corner, fixer.currentTriad)) {
+                        CoinUtils.setPastStatus(coin, "pass", i);
                         fixer.finished = true;
                         corner = 1;
                     } else {
-                        //Still broken, do the broken stuff.
                         corner++;
                         fixer.setCornerToCheck(corner);
                     }
@@ -226,31 +174,21 @@ public class FrackFixer {
         }
 
         for (int raida_ID = 24; raida_ID > 0; raida_ID--) {
-            //  System.out.println("Past Status for " + raida_ID + ", " + brokeCoin.pastStatus[raida_ID]);
-            if (!continueExecution) {
-                return brokeCoin;
-            }
+            if (!continueExecution) return coin;
 
-            if (CoinUtils.getPastStatus(brokeCoin, raida_ID).toLowerCase() != "pass")//will try to fix everything that is not perfect pass.
-            {
+            if (!"pass".equals(CoinUtils.getPastStatus(coin, raida_ID))) {
                 updateLog("Attempting to fix RAIDA " + raida_ID);
 
-                fixer = new FixitHelper(raida_ID, brokeCoin.an.toArray(new String[0]));
+                fixer = new FixitHelper(raida_ID, coin.an.toArray(new String[0]));
 
-                //trustedServerAns = new String[] { brokeCoin.ans[fixer.currentTriad[0]], brokeCoin.ans[fixer.currentTriad[1]], brokeCoin.ans[fixer.currentTriad[2]] };
                 corner = 1;
                 while (!fixer.finished) {
                     updateLog("Using corner " + corner);
-
-                    fix_result = fixOneGuidCorner(raida_ID, brokeCoin, corner, fixer.currentTriad);
-                    // updateLog(" fix_result: " + fix_result + " for corner " + corner);
-                    if (fix_result.contains("success")) {
-                        //Fixed. Do the fixed stuff
-                        CoinUtils.setPastStatus(brokeCoin, "pass", raida_ID);
+                    if (fixOneGuidCorner(raida_ID, coin, corner, fixer.currentTriad)) {
+                        CoinUtils.setPastStatus(coin, "pass", raida_ID);
                         fixer.finished = true;
                         corner = 1;
                     } else {
-                        //Still broken, do the broken stuff.
                         corner++;
                         fixer.setCornerToCheck(corner);
                     }
@@ -261,9 +199,9 @@ public class FrackFixer {
         long ts = after - before;
         updateLog("Time spent fixing RAIDA in milliseconds: " + ts);
 
-        Grader.gradeSimple(brokeCoin, fileUtils);
-        CoinUtils.calcExpirationDate();
-        return brokeCoin;
+        Grader.gradeSimple(coin, fileUtils);
+        CoinUtils.calcExpirationDate(coin);
+        return coin;
     }
 
     public void updateLog(String message) {

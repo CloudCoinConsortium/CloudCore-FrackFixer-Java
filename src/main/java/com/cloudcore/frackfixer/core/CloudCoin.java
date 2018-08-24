@@ -4,7 +4,6 @@ import com.cloudcore.frackfixer.utils.CoinUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.security.SecureRandom;
 import java.util.*;
 
 public class CloudCoin {
