@@ -1,15 +1,16 @@
 package com.cloudcore.frackfixer;
 
 import com.cloudcore.frackfixer.core.CloudCoin;
-import com.cloudcore.frackfixer.core.IFileSystem;
+import com.cloudcore.frackfixer.core.FileSystem;
 import com.cloudcore.frackfixer.utils.Utils;
 
 public class Grader {
 
+
     /**
      * Determines the coin's folder based on a simple grading schematic.
      */
-    public static void GradeSimple(CloudCoin coin, IFileSystem FS) {
+    public static void gradeSimple(CloudCoin coin, FileSystem FS) {
         if (isPassingSimple(coin.pown)) {
             if (isFrackedSimple(coin.pown))
                 coin.folder = FS.FrackedFolder;

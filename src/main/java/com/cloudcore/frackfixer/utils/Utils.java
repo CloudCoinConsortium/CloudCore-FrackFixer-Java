@@ -12,8 +12,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Random;
 
 public class Utils {
+
+
+    private static Random random = new Random();
+    private static final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 
     /* Methods */
@@ -37,8 +42,17 @@ public class Utils {
             Stack coins = gson.fromJson(new String(json), Stack.class);
             return coins.cc;
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
+    }
+
+    public static String RandomString(int length) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            builder.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return builder.toString();
     }
 
     public static int charCount(String pown, char character) {
@@ -56,22 +70,6 @@ public class Utils {
      */
     public static String padString(String string, int length, char padding) {
         return String.format("%" + length + "s", string).replace(' ', padding);
-    }
-
-    /**
-     * Method ordinalIndexOf used to parse cloudcoins. Finds the nth number of a character within a String
-     *
-     * @param str    The String to search in
-     * @param substr What to count in the String
-     * @param n      The nth number
-     * @return The index of the nth number
-     */
-    public static int ordinalIndexOf(String str, String substr, int n) {
-        int pos = str.indexOf(substr);
-        while (--n > 0 && pos != -1) {
-            pos = str.indexOf(substr, (pos + 1));
-        }
-        return pos;
     }
 
     public static String GetHtmlFromURL(String urlAddress) {

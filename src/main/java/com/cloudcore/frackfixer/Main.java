@@ -21,10 +21,11 @@ public class Main {
     static FileSystem fs;
     public static SimpleLogger logger;
 
+
     /* Methods */
 
     /**
-     * Creates an Exporter instance and runs it.
+     * Creates a FrackFixer instance and runs it.
      */
     public static void main(String[] args) {
         try {
@@ -37,6 +38,7 @@ public class Main {
         }
 
         logger.writeLogToFile();
+        System.exit(0);
     }
 
     /**
@@ -56,7 +58,7 @@ public class Main {
         FrackFixer.logger = logger;
         frackFixer.continueExecution = true;
         frackFixer.IsFixing = true;
-        frackFixer.FixAll();
+        frackFixer.fixAll();
         frackFixer.IsFixing = false;
     }
 }

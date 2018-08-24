@@ -16,7 +16,7 @@ public class FrackFixer {
 
     public static SimpleLogger logger;
 
-    private IFileSystem fileUtils;
+    private FileSystem fileUtils;
     private RAIDA raida;
 
     private int totalValueToBank;
@@ -29,7 +29,7 @@ public class FrackFixer {
 
     /* CONSTRUCTORS */
 
-    public FrackFixer(IFileSystem fileUtils, int timeout) {
+    public FrackFixer(FileSystem fileUtils, int timeout) {
         this.fileUtils = fileUtils;
         raida = RAIDA.GetInstance();
         totalValueToBank = 0;
@@ -89,7 +89,7 @@ public class FrackFixer {
 
     /* PUBLIC METHODS */
 
-    public int[] FixAll() {
+    public int[] fixAll() {
         IsFixing = true;
         continueExecution = true;
         int[] results = new int[3];
@@ -109,8 +109,8 @@ public class FrackFixer {
             String response = "Unfracking coin " + (i + 1) + " of " + frackedFiles.length;
             updateLog(response);
 
-            frackedCC = fileUtils.LoadCoin(frackedFiles[i].toString());
-            frackedCC.folder = frackedFiles[i].getName();
+            frackedCC = fileUtils.loadCoin(frackedFiles[i].toString());
+            frackedCC.currentFilename = frackedFiles[i].getName();
             if (frackedCC == null) {
                 updateLog(frackedFiles[i] + " is null, skipping");
                 continue;
@@ -126,15 +126,13 @@ public class FrackFixer {
             frackedCC.setFullFilePath(frackedCC.folder + CoinUtils.getDenomination(frackedCC) + ".CloudCoin." + frackedCC.nn + "." + frackedCC.getSn());
             if (fileUtils.BankFolder.equals(frackedCC.folder)) {
                 this.totalValueToBank++;
-                this.fileUtils.overWrite(this.fileUtils.BankFolder, frackedCC);
-                this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
+                fileUtils.moveCoin(frackedCC, fileUtils.FrackedFolder, frackedCC.folder, false);
                 updateLog("CloudCoin was moved to Bank.");
             }
             else if (fileUtils.CounterfeitFolder.equals(frackedCC.folder)) {
                 this.totalValueToCounterfeit++;
-                this.fileUtils.overWrite(this.fileUtils.CounterfeitFolder, frackedCC);
-                this.deleteCoin(this.fileUtils.FrackedFolder + frackedFiles[i].getName());
-                updateLog("CloudCoin was moved to Trash.");
+                fileUtils.moveCoin(frackedCC, fileUtils.FrackedFolder, frackedCC.folder, false);
+                updateLog("CloudCoin was moved to Counterfeit.");
             }
             else {
                 this.totalValueToFractured++;
@@ -180,7 +178,6 @@ public class FrackFixer {
 
         //RAIDA_Status.newCoin();
 
-        CoinUtils.setAnsToPans(brokeCoin);// Make sure we set the RAIDA to the cc ans and not new pans.
         long before = System.currentTimeMillis();
 
         String fix_result = "";
@@ -190,20 +187,21 @@ public class FrackFixer {
         /*1. PICK THE CORNER TO USE TO TRY TO FIX */
         int corner = 1;
         // For every guid, check to see if it is fractured
-        for (int raida_ID = 0; raida_ID < 25; raida_ID++) {
+        for (int i = 0; i < 25; i++) {
             if (!continueExecution) {
                 System.out.println("Stopping Execution");
                 return brokeCoin;
             }
-            //  System.out.println("Past Status for " + raida_ID + ", " + brokeCoin.pastStatus[raida_ID]);
+            //  System.out.println("Past Status for " + i + ", " + brokeCoin.pastStatus[i]);
 
-            if (CoinUtils.getPastStatus(brokeCoin, raida_ID).toLowerCase() != "pass")//will try to fix everything that is not perfect pass.
+            if (CoinUtils.getPastStatus(brokeCoin, i).toLowerCase() != "pass")//will try to fix everything that is not perfect pass.
             {
-                updateLog("Attempting to fix RAIDA " + raida_ID);
+                updateLog("Attempting to fix RAIDA " + i);
 
-                fixer = new FixitHelper(raida_ID, brokeCoin.an.toArray(new String[0]));
+                fixer = new FixitHelper(i, brokeCoin.an.toArray(new String[0]));
 
                 //trustedServerAns = new String[] { brokeCoin.ans[fixer.currentTriad[0]], brokeCoin.ans[fixer.currentTriad[1]], brokeCoin.ans[fixer.currentTriad[2]] };
+
                 corner = 1;
                 while (!fixer.finished) {
                     if (!continueExecution) {
@@ -211,11 +209,11 @@ public class FrackFixer {
                         return brokeCoin;
                     }
                     updateLog("Using corner " + corner + " Pown is " + brokeCoin.pown);
-                    fix_result = fixOneGuidCorner(raida_ID, brokeCoin, corner, fixer.currentTriad);
+                    fix_result = fixOneGuidCorner(i, brokeCoin, corner, fixer.currentTriad);
                     // updateLog(" fix_result: " + fix_result + " for corner " + corner);
                     if (fix_result.contains("success")) {
                         //Fixed. Do the fixed stuff
-                        CoinUtils.setPastStatus(brokeCoin, "pass", raida_ID);
+                        CoinUtils.setPastStatus(brokeCoin, "pass", i);
                         fixer.finished = true;
                         corner = 1;
                     } else {
@@ -263,10 +261,7 @@ public class FrackFixer {
         long ts = after - before;
         updateLog("Time spent fixing RAIDA in milliseconds: " + ts);
 
-        CoinUtils.calculateHP(brokeCoin);//how many fails did it get
-        //  cu.gradeCoin();// sets the grade and figures out what the file extension should be (bank, fracked, counterfeit, lost
-
-        Grader.GradeSimple(brokeCoin, fileUtils);
+        Grader.gradeSimple(brokeCoin, fileUtils);
         CoinUtils.calcExpirationDate();
         return brokeCoin;
     }

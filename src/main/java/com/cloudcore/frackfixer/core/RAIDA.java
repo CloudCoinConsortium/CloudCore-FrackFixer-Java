@@ -1,5 +1,6 @@
 package com.cloudcore.frackfixer.core;
 
+import com.cloudcore.frackfixer.utils.CoinUtils;
 import com.cloudcore.frackfixer.utils.SimpleLogger;
 import com.cloudcore.frackfixer.utils.Utils;
 import com.google.gson.Gson;
@@ -21,7 +22,7 @@ public class RAIDA {
     public MultiDetectRequest multiRequest;
     public int NetworkNumber = 1;
 
-    public static IFileSystem FileSystem;
+    public static FileSystem FileSystem;
 
     public ArrayList<CloudCoin> coins;
 
@@ -154,7 +155,7 @@ public class RAIDA {
                 }
             }
 
-            IFileSystem.predetectCoins = suspectCoins;
+            FileSystem.predetectCoins = suspectCoins;
 
             System.out.println("Getting network...");
             RAIDA raida = null;
@@ -209,14 +210,12 @@ public class RAIDA {
                                 countf++;
                         }
                         coin.pown = pownString.toString();
-                        coin.setPassCount(countp);
-                        coin.setFailCount(countf);
                         CoinCount++;
 
-                        updateLog("No. " + CoinCount + ". Coin Detected. sn - " + coin.getSn() + ". Pass Count - " + coin.getPassCount() +
-                                ". Fail Count  - " + coin.getFailCount() + ". Result - " + coin.DetectionResult + "." + coin.pown);
-                        System.out.println("Coin Detected. sn - " + coin.getSn() + ". Pass Count - " + coin.getPassCount() +
-                                ". Fail Count  - " + coin.getFailCount() + ". Result - " + coin.DetectionResult);
+                        updateLog("No. " + CoinCount + ". Coin Detected. sn - " + coin.getSn() + ". Pass Count - " + CoinUtils.getPassCount(coin) +
+                                ". Fail Count  - " + CoinUtils.getFailCount(coin) + ". Result - " + CoinUtils.getDetectionResult(coin) + "." + coin.pown);
+                        System.out.println("Coin Detected. sn - " + coin.getSn() + ". Pass Count - " + CoinUtils.getPassCount(coin) +
+                                ". Fail Count  - " + CoinUtils.getFailCount(coin) + ". Result - " + CoinUtils.getDetectionResult(coin));
                         //coin.sortToFolder();
                         progress = (CoinCount) * 100 / totalCoinCount;
                         System.out.println("Minor Progress- " + progress);
@@ -253,12 +252,12 @@ public class RAIDA {
 
         for (int i = 0; i < coins.size(); i++) {
             if (changeANs)
-                coins.get(i).GeneratePAN();
+                CoinUtils.generatePAN(coins.get(i));
             else
-                coins.get(i).SetAnsToPans();
+                CoinUtils.setAnsToPans(coins.get(i));
             nns[i] = coins.get(i).nn;
             sns[i] = coins.get(i).getSn();
-            dens[i] = coins.get(i).denomination;
+            dens[i] = CoinUtils.getDenomination(coins.get(i));
             System.out.println(coins.get(i).toString());
         }
 

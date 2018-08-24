@@ -3,7 +3,9 @@ package com.cloudcore.frackfixer.utils;
 import com.cloudcore.frackfixer.core.CloudCoin;
 import com.cloudcore.frackfixer.core.Config;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -20,12 +22,14 @@ public class CoinUtils {
         return (expirationDate.getMonthValue() + "-" + expirationDate.getYear());
     }
 
-    public static void calculateHP(CloudCoin coin) {
-        coin.hp = 25;
-        char[] pownArray = coin.pown.toCharArray();
-        for (int i = 0; (i < 25); i++)
-            if (pownArray[i] == 'f')
-                coin.hp--;
+    public static int getPassCount(CloudCoin coin) {
+        return Utils.charCount(coin.pown, 'p');
+    }
+    public static int getFailCount(CloudCoin coin) {
+        return Utils.charCount(coin.pown, 'f');
+    }
+    public static String getDetectionResult(CloudCoin coin) {
+        return (getPassCount(coin) >= Config.PassCount) ? "Pass" : "Fail";
     }
 
     public static String getPastStatus(CloudCoin coin, int raida_id) {
@@ -112,14 +116,24 @@ public class CoinUtils {
         return CoinUtils.getDenomination(coin) + ".CloudCoin." + coin.nn + "." + coin.getSn();
     }
 
+    public static void generatePAN(CloudCoin coin) {
+        coin.pan = new String[Config.NodeCount];
+        for (int i = 0; i < Config.NodeCount; i++) {
+            SecureRandom random = new SecureRandom();
+            byte[] cryptoRandomBuffer = random.generateSeed(16);
+
+            UUID uuid = UUID.nameUUIDFromBytes(cryptoRandomBuffer);
+            coin.pan[i] = uuid.toString().replace("-", "");
+        }
+    }
+
     /**
      * Updates the Authenticity Numbers to the new Proposed Authenticity Numbers.
      */
     public static void setAnsToPans(CloudCoin coin) {
-        coin.pan = new String[coin.an.size()];
-        for (int i = 0; (i < 25); i++)
-            coin.pan[i] = coin.an.get(i);
-        //coin.an.toArray(coin.pan);
+        for (int i = 0; (i < Config.NodeCount); i++) {
+            coin.an.set(i, coin.pan[i]);
+        }
     }
 
     /**
