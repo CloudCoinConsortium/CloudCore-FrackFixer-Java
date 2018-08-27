@@ -44,15 +44,15 @@ public class FrackFixer {
             return false;
         } else {
             if (!raida.nodes[triad[0]].isFailed() || !raida.nodes[triad[1]].isFailed() || !raida.nodes[triad[2]].isFailed()) {
-                String[] ans = {cc.an.get(triad[0]), cc.an.get(triad[1]), cc.an.get(triad[2])};
-                raida.getTickets(triad, ans, cc.nn, cc.getSn(), CoinUtils.getDenomination(cc), 3000);
+                String[] ans = {cc.getAn().get(triad[0]), cc.getAn().get(triad[1]), cc.getAn().get(triad[2])};
+                raida.getTickets(triad, ans, cc.getNn(), cc.getSn(), CoinUtils.getDenomination(cc), 3000);
 
                 if (raida.nodes[triad[0]].hasTicket && raida.nodes[triad[1]].hasTicket && raida.nodes[triad[2]].hasTicket) {
                     if (!continueExecution) {
                         updateLog("Aborting Fix for new operation.");
                         return false;
                     }
-                    Response fixResponse = RAIDA.getInstance().nodes[raida_ID].fix(triad, raida.nodes[triad[0]].ticket, raida.nodes[triad[1]].ticket, raida.nodes[triad[2]].ticket, cc.an.get(raida_ID));
+                    Response fixResponse = RAIDA.getInstance().nodes[raida_ID].fix(triad, raida.nodes[triad[0]].ticket, raida.nodes[triad[1]].ticket, raida.nodes[triad[2]].ticket, cc.getAn().get(raida_ID));
                     if (fixResponse.success) {
                         updateLog("RAIDA" + raida_ID + " unfracked successfully.");
                         return true;
@@ -105,7 +105,7 @@ public class FrackFixer {
             }
             CoinUtils.consoleReport(coin);
 
-            coin.setFullFilePath(coin.folder + CoinUtils.getDenomination(coin) + ".CloudCoin." + coin.nn + "." + coin.getSn());
+            coin.setFullFilePath(coin.folder + CoinUtils.getDenomination(coin) + ".CloudCoin." + coin.getNn() + "." + coin.getSn());
             if (fileUtils.BankFolder.equals(coin.folder)) {
                 this.totalValueToBank++;
                 fileUtils.moveCoin(coin, fileUtils.FrackedFolder, coin.folder, false);
@@ -152,7 +152,7 @@ public class FrackFixer {
             if (!"pass".equals(CoinUtils.getPastStatus(coin, i))) {
                 updateLog("Attempting to fix RAIDA " + i);
 
-                fixer = new FixitHelper(i, coin.an.toArray(new String[0]));
+                fixer = new FixitHelper(i, coin.getAn().toArray(new String[0]));
 
                 corner = 1;
                 while (!fixer.finished) {
@@ -160,7 +160,7 @@ public class FrackFixer {
                         System.out.println("Stopping Execution");
                         return coin;
                     }
-                    updateLog("Using corner " + corner + " Pown is " + coin.pown);
+                    updateLog("Using corner " + corner + " Pown is " + coin.getPown());
                     if (fixOneGuidCorner(i, coin, corner, fixer.currentTriad)) {
                         CoinUtils.setPastStatus(coin, "pass", i);
                         fixer.finished = true;
@@ -179,7 +179,7 @@ public class FrackFixer {
             if (!"pass".equals(CoinUtils.getPastStatus(coin, raida_ID))) {
                 updateLog("Attempting to fix RAIDA " + raida_ID);
 
-                fixer = new FixitHelper(raida_ID, coin.an.toArray(new String[0]));
+                fixer = new FixitHelper(raida_ID, coin.getAn().toArray(new String[0]));
 
                 corner = 1;
                 while (!fixer.finished) {

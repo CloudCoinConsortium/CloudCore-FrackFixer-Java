@@ -149,7 +149,7 @@ public class RAIDA {
             ArrayList<CloudCoin> folderSuspectCoins = fileSystem.loadFolderCoins(fileSystem.SuspectFolder);
             ArrayList<CloudCoin> suspectCoins = new ArrayList<>();
             for (CloudCoin oldPredetectCoin : folderSuspectCoins) {
-                if (networkNumber == oldPredetectCoin.nn) {
+                if (networkNumber == oldPredetectCoin.getNn()) {
                     suspectCoins.add(oldPredetectCoin);
                 }
             }
@@ -197,22 +197,16 @@ public class RAIDA {
                     for (int j = 0; j < coins.size(); j++) {
                         CloudCoin coin = coins.get(j);
                         StringBuilder pownString = new StringBuilder();
-                        coin.pown = "";
-                        int countp = 0;
-                        int countf = 0;
+                        coin.setPown("");
                         for (int k = 0; k < Config.nodeCount; k++) {
                             Response nodeResponse = raida.nodes[k].multiResponse.responses[j];
                             pownString.append(nodeResponse.outcome, 0, 1);
-                            if ("pass".equals(nodeResponse.outcome))
-                                countp++;
-                            else
-                                countf++;
                         }
-                        coin.pown = pownString.toString();
+                        coin.setPown(pownString.toString());
                         coinCount++;
 
                         updateLog("No. " + coinCount + ". Coin Detected. sn - " + coin.getSn() + ". Pass Count - " + CoinUtils.getPassCount(coin) +
-                                ". Fail Count  - " + CoinUtils.getFailCount(coin) + ". Result - " + CoinUtils.getDetectionResult(coin) + "." + coin.pown);
+                                ". Fail Count  - " + CoinUtils.getFailCount(coin) + ". Result - " + CoinUtils.getDetectionResult(coin) + "." + coin.getPown());
                         System.out.println("Coin Detected. sn - " + coin.getSn() + ". Pass Count - " + CoinUtils.getPassCount(coin) +
                                 ". Fail Count  - " + CoinUtils.getFailCount(coin) + ". Result - " + CoinUtils.getDetectionResult(coin));
                         //coin.sortToFolder();
@@ -251,7 +245,7 @@ public class RAIDA {
                 CoinUtils.generatePAN(coins.get(i));
             else
                 CoinUtils.setAnsToPans(coins.get(i));
-            nns[i] = coins.get(i).nn;
+            nns[i] = coins.get(i).getNn();
             sns[i] = coins.get(i).getSn();
             dens[i] = CoinUtils.getDenomination(coins.get(i));
             System.out.println(coins.get(i).toString());
@@ -265,7 +259,7 @@ public class RAIDA {
                 pans[nodeNumber] = new String[coins.size()];
 
                 for (int i = 0; i < coins.size(); i++) {
-                    ans[nodeNumber][i] = coins.get(i).an.get(nodeNumber);
+                    ans[nodeNumber][i] = coins.get(i).getAn().get(nodeNumber);
                     pans[nodeNumber][i] = coins.get(i).pan[nodeNumber];
                 }
                 multiRequest.an[nodeNumber] = ans[nodeNumber];

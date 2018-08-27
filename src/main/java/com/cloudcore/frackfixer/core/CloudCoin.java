@@ -13,22 +13,22 @@ public class CloudCoin {
 
     @Expose
     @SerializedName("nn")
-    public int nn;
+    private int nn;
     @Expose
     @SerializedName("sn")
     private int sn;
     @Expose
     @SerializedName("an")
-    public ArrayList<String> an = new ArrayList<>();
+    private ArrayList<String> an = new ArrayList<>();
     @Expose
     @SerializedName("ed")
-    public String ed = CoinUtils.calcExpirationDate();
+    private String ed = CoinUtils.calcExpirationDate();
     @Expose
     @SerializedName("pown")
-    public String pown = "uuuuuuuuuuuuuuuuuuuuuuuuu";
+    private String pown = "uuuuuuuuuuuuuuuuuuuuuuuuu";
     @Expose
     @SerializedName("aoid")
-    public ArrayList<String> aoid = new ArrayList<>();
+    private ArrayList<String> aoid = new ArrayList<>();
 
 
     /* Fields */
@@ -42,18 +42,6 @@ public class CloudCoin {
     private transient String fullFilePath;
 
 
-    /* Constructor */
-
-    /**
-     * Simple CloudCoin constructor for setting the filepath of the coin. This is used when deleting or renaming a file.
-     *
-     * @param fullFilePath the absolute filepath of the CloudCoin.
-     */
-    private CloudCoin(String fullFilePath) {
-        this.fullFilePath = fullFilePath;
-    }
-
-
     /* Methods */
 
     /**
@@ -64,31 +52,27 @@ public class CloudCoin {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("cloudcoin: (nn:").append(nn).append(", sn:").append(sn);
-        if (null != ed) builder.append(", ed:").append(ed);
-        if (null != pown) builder.append(", pown:").append(pown);
-        if (null != aoid) builder.append(", aoid:").append(aoid.toString());
-        if (null != an) builder.append(", an:").append(an.toString());
-
+        builder.append("cloudcoin: (nn:").append(getNn()).append(", sn:").append(sn);
+        if (null != getEd()) builder.append(", ed:").append(getEd());
+        if (null != getPown()) builder.append(", pown:").append(getPown());
+        if (null != getAoid()) builder.append(", aoid:").append(getAoid().toString());
+        if (null != getAn()) builder.append(", an:").append(getAn().toString());
         return builder.toString();
     }
 
 
     /* Getters and Setters */
 
-    public int getSn() {
-        return sn;
-    }
+    public int getNn() { return nn; }
+    public int getSn() { return sn; }
+    public ArrayList<String> getAn() { return an; }
+    public String getEd() { return ed; }
+    public String getPown() { return pown; }
+    public ArrayList<String> getAoid() { return aoid; }
+    public String getFullFilePath() { return fullFilePath; }
 
-    public void setSn(int sn) {
-        this.sn = sn;
-    }
+    public void setEd(String ed) { this.ed = ed; }
+    public void setPown(String pown) { this.pown = pown; }
 
-    public void setFullFilePath(String fullFilePath) {
-        this.fullFilePath = fullFilePath;
-    }
-
-    public String getFullFilePath() {
-        return fullFilePath;
-    }
+    public void setFullFilePath(String fullFilePath) { this.fullFilePath = fullFilePath; }
 }
