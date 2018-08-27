@@ -182,14 +182,14 @@ public class FileSystem {
     }
 
     public CloudCoin loadCoin(String fileName) {
-        CloudCoin[] coins = Utils.loadJson(fileName);
+        ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromStack(fileName);
 
         if (coins != null)
-            System.out.println("loaded coins: " + coins.length);
+            System.out.println("loaded coins: " + coins.size());
         else
             System.out.println("or not");
-        if (coins != null && coins.length > 0)
-            return coins[0];
+        if (coins != null && coins.size() > 0)
+            return coins.get(0);
         return null;
     }
 
@@ -259,7 +259,7 @@ public class FileSystem {
         //int coinExists = (int) Arrays.stream(folderCoins.toArray(new CloudCoin[0])).filter(x -> x.getSn() == coin.getSn()).count();
 
         if (coinExists > 0 && !replaceCoins) {
-            String suffix = Utils.randomString(16);
+            String suffix = FileUtils.randomString(16);
             fileName += suffix.toLowerCase();
         }
         try {

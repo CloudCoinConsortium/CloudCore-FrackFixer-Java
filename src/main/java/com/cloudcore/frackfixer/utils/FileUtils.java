@@ -2,6 +2,7 @@ package com.cloudcore.frackfixer.utils;
 
 import com.cloudcore.frackfixer.core.CloudCoin;
 import com.cloudcore.frackfixer.core.Stack;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +11,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Random;
 
 public class FileUtils {
+
+
+    /* Fields */
+
+    private static Random random = new Random();
+    private static final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 
     /* Methods */
@@ -37,20 +45,12 @@ public class FileUtils {
         return newFilename;
     }
 
-    /**
-     * Attempts to read a JSON Object from a file.
-     *
-     * @param fullFilePath the absolute filepath of the JSON file.
-     * @return JSON String
-     */
-    public static String loadJSON(String fullFilePath) {
-        try {
-            return new String(Files.readAllBytes(Paths.get(fullFilePath)));
-        } catch (IOException e) {
-            System.out.println("Failed to open " + fullFilePath);
-            e.printStackTrace();
-            return null;
+    public static String randomString(int length) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            builder.append(chars.charAt(random.nextInt(chars.length())));
         }
+        return builder.toString();
     }
 
     /**
@@ -60,22 +60,20 @@ public class FileUtils {
      * @return ArrayList of CloudCoins.
      */
     public static ArrayList<CloudCoin> loadCloudCoinsFromStack(String fullFilePath) {
-        String fileJson = loadJSON(fullFilePath);
-        if (fileJson == null) {
-            System.out.println("File " + fullFilePath + " was not imported.");
-            return new ArrayList<>();
-        }
-
         try {
-            Stack stack = Utils.createGson().fromJson(fileJson, Stack.class);
+            String file = new String(Files.readAllBytes(Paths.get(fullFilePath)));
+            Stack stack = Utils.createGson().fromJson(file, Stack.class);
             for (CloudCoin coin : stack.cc)
                 coin.setFullFilePath(fullFilePath);
             return new ArrayList<>(Arrays.asList(stack.cc));
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
-            return new ArrayList<>();
+        } catch (JsonSyntaxException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
         }
+        return new ArrayList<>();
     }
 
     /**
@@ -90,9 +88,11 @@ public class FileUtils {
         if (folder.isDirectory()) {
             File[] filenames = folder.listFiles();
 
-            for (File file : filenames) {
-                if (file.isFile()) {//Only add files with the matching file extension
-                    files.add(file.getName());
+            if (null != filenames) {
+                for (File file : filenames) {
+                    if (file.isFile()) {
+                        files.add(file.getName());
+                    }
                 }
             }
         }
