@@ -33,7 +33,7 @@ public class CloudCoin {
 
     /* Fields */
 
-    public transient String[] pan = new String[Config.NodeCount];
+    public transient String[] pan = new String[Config.nodeCount];
 
     public transient String folder;
 

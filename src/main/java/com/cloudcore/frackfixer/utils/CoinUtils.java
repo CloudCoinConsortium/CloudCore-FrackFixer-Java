@@ -18,7 +18,7 @@ public class CoinUtils {
         coin.ed = calcExpirationDate();
     }
     public static String calcExpirationDate() {
-        LocalDate expirationDate = LocalDate.now().plusYears(Config.YEARSTILEXPIRE);
+        LocalDate expirationDate = LocalDate.now().plusYears(Config.EXPIRATION_YEARS);
         return (expirationDate.getMonthValue() + "-" + expirationDate.getYear());
     }
 
@@ -29,7 +29,7 @@ public class CoinUtils {
         return Utils.charCount(coin.pown, 'f');
     }
     public static String getDetectionResult(CloudCoin coin) {
-        return (getPassCount(coin) >= Config.PassCount) ? "Pass" : "Fail";
+        return (getPassCount(coin) >= Config.passCount) ? "Pass" : "Fail";
     }
 
     public static String getPastStatus(CloudCoin coin, int raida_id) {
@@ -117,8 +117,8 @@ public class CoinUtils {
     }
 
     public static void generatePAN(CloudCoin coin) {
-        coin.pan = new String[Config.NodeCount];
-        for (int i = 0; i < Config.NodeCount; i++) {
+        coin.pan = new String[Config.nodeCount];
+        for (int i = 0; i < Config.nodeCount; i++) {
             SecureRandom random = new SecureRandom();
             byte[] cryptoRandomBuffer = random.generateSeed(16);
 
@@ -131,7 +131,7 @@ public class CoinUtils {
      * Updates the Authenticity Numbers to the new Proposed Authenticity Numbers.
      */
     public static void setAnsToPans(CloudCoin coin) {
-        for (int i = 0; (i < Config.NodeCount); i++) {
+        for (int i = 0; (i < Config.nodeCount); i++) {
             coin.an.set(i, coin.pan[i]);
         }
     }
@@ -206,7 +206,7 @@ public class CoinUtils {
      */
     public static String expirationDateStringToHex() {
         LocalDate zeroDate = LocalDate.of(2016, 8, 13);
-        LocalDate expirationDate = LocalDate.now().plusYears(Config.YEARSTILEXPIRE);
+        LocalDate expirationDate = LocalDate.now().plusYears(Config.EXPIRATION_YEARS);
         int monthsAfterZero = (int) (DAYS.between(zeroDate, expirationDate) / (365.25 / 12));
         return Integer.toHexString(monthsAfterZero);
     }

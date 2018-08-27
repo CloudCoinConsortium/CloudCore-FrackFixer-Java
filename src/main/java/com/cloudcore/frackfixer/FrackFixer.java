@@ -76,7 +76,7 @@ public class FrackFixer {
     public int[] fixAll() {
         isFixing = continueExecution = true;
         int[] results = new int[3];
-        File[] frackedFiles = FileSystem.GetFilesArray(fileUtils.FrackedFolder, Config.allowedExtensions);
+        File[] frackedFiles = FileSystem.GetFilesArray(fileUtils.FrackedFolder, Config.ALLOWED_EXTENSIONS);
 
         CloudCoin coin;
 

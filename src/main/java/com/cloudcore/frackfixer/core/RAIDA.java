@@ -27,8 +27,8 @@ public class RAIDA {
     public static SimpleLogger logger;
 
     public static ArrayList<RAIDA> networks = new ArrayList<>();
-    public Node[] nodes = new Node[Config.NodeCount];
-    public Response[] responseArray = new Response[Config.NodeCount];
+    public Node[] nodes = new Node[Config.nodeCount];
+    public Response[] responseArray = new Response[Config.nodeCount];
     public MultiDetectRequest multiRequest;
 
     public int networkNumber = 1;
@@ -40,7 +40,7 @@ public class RAIDA {
     /* Constructors */
 
     private RAIDA() {
-        for (int i = 0; i < Config.NodeCount; i++) {
+        for (int i = 0; i < Config.nodeCount; i++) {
             nodes[i] = new Node(i + 1);
         }
     }
@@ -169,8 +169,8 @@ public class RAIDA {
                 return null;
 
             // Process Coins in Lots of 200. Can be changed from Config File
-            int lotCount = suspectCoins.size() / Config.MultiDetectLoad;
-            if (suspectCoins.size() % Config.MultiDetectLoad > 0)
+            int lotCount = suspectCoins.size() / Config.multiDetectLoad;
+            if (suspectCoins.size() % Config.multiDetectLoad > 0)
                 lotCount++;
 
             int coinCount = 0;
@@ -179,7 +179,7 @@ public class RAIDA {
             for (int i = 0; i < lotCount; i++) {
                 ArrayList<CloudCoin> coins = new ArrayList<>();
                 try { // Pick up to 200 Coins and send them to RAIDA
-                    coins = new ArrayList<>(suspectCoins.subList(i * Config.MultiDetectLoad, Math.min(suspectCoins.size(), 200)));
+                    coins = new ArrayList<>(suspectCoins.subList(i * Config.multiDetectLoad, Math.min(suspectCoins.size(), 200)));
                     raida.coins = coins;
                 } catch (Exception e) {
                     System.out.println(":" + e.getLocalizedMessage());
@@ -200,7 +200,7 @@ public class RAIDA {
                         coin.pown = "";
                         int countp = 0;
                         int countf = 0;
-                        for (int k = 0; k < Config.NodeCount; k++) {
+                        for (int k = 0; k < Config.nodeCount; k++) {
                             Response nodeResponse = raida.nodes[k].multiResponse.responses[j];
                             pownString.append(nodeResponse.outcome, 0, 1);
                             if ("pass".equals(nodeResponse.outcome))
@@ -240,8 +240,8 @@ public class RAIDA {
         int[] nns = new int[coins.size()];
         int[] sns = new int[coins.size()];
 
-        String[][] ans = new String[Config.NodeCount][];
-        String[][] pans = new String[Config.NodeCount][];
+        String[][] ans = new String[Config.nodeCount][];
+        String[][] pans = new String[Config.nodeCount][];
 
         int[] dens = new int[coins.size()]; // Denominations
         ArrayList<CompletableFuture<Node.MultiDetectResponse>> detectTasks = new ArrayList<>(); // Stripe the coins
@@ -260,7 +260,7 @@ public class RAIDA {
         try {
             multiRequest = new MultiDetectRequest();
             multiRequest.timeout = Config.milliSecondsToTimeOut;
-            for (int nodeNumber = 0; nodeNumber < Config.NodeCount; nodeNumber++) {
+            for (int nodeNumber = 0; nodeNumber < Config.nodeCount; nodeNumber++) {
                 ans[nodeNumber] = new String[coins.size()];
                 pans[nodeNumber] = new String[coins.size()];
 
@@ -280,7 +280,7 @@ public class RAIDA {
         }
 
         try {
-            for (int nodeNumber = 0; nodeNumber < Config.NodeCount; nodeNumber++) {
+            for (int nodeNumber = 0; nodeNumber < Config.nodeCount; nodeNumber++) {
                 detectTasks.add(nodes[nodeNumber].MultiDetect());
             }
         } catch (Exception e) {

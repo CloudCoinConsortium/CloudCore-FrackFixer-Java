@@ -53,7 +53,6 @@ public class FileSystem {
         LogsFolder = RootPath + File.separator + Config.TAG_LOGS + File.separator;
 
         LostFolder = RootPath + File.separator + Config.TAG_LOST + File.separator;
-        TemplateFolder = RootPath + File.separator + Config.TAG_TEMPLATES + File.separator;
         ExportFolder = RootPath + File.separator + Config.TAG_EXPORT + File.separator;
     }
 
@@ -72,7 +71,6 @@ public class FileSystem {
             Files.createDirectories(Paths.get(ExportFolder));
             Files.createDirectories(Paths.get(BankFolder));
             Files.createDirectories(Paths.get(FrackedFolder));
-            Files.createDirectories(Paths.get(TemplateFolder));
             Files.createDirectories(Paths.get(LogsFolder));
         } catch (Exception e) {
             System.out.println("FS#CD: " + e.getLocalizedMessage());
