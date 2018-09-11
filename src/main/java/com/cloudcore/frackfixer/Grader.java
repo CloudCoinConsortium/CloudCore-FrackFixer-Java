@@ -10,17 +10,17 @@ public class Grader {
     /**
      * Determines the coin's folder based on a simple grading schematic.
      */
-    public static void gradeSimple(CloudCoin coin, FileSystem FS) {
+    public static void gradeSimple(CloudCoin coin) {
         if (isPassingSimple(coin.getPown())) {
             if (isFrackedSimple(coin.getPown()))
-                coin.folder = FS.FrackedFolder;
+                coin.folder = FileSystem.FrackedFolder;
             else
-                coin.folder = FS.BankFolder;
+                coin.folder = FileSystem.BankFolder;
         } else {
             if (isHealthySimple(coin.getPown()))
-                coin.folder = FS.CounterfeitFolder;
+                coin.folder = FileSystem.CounterfeitFolder;
             else
-                coin.folder = FS.LostFolder;
+                coin.folder = FileSystem.LostFolder;
         }
     }
 

@@ -12,8 +12,7 @@ public class FrackFixer {
     /* Fields */
 
     public static SimpleLogger logger;
-
-    private FileSystem fileUtils;
+    
     private RAIDA raida;
 
     private int totalValueToBank;
@@ -26,8 +25,7 @@ public class FrackFixer {
 
     /* Constructors */
 
-    public FrackFixer(FileSystem fileUtils, int timeout) {
-        this.fileUtils = fileUtils;
+    public FrackFixer() {
         raida = RAIDA.getInstance();
         totalValueToBank = 0;
         totalValueToCounterfeit = 0;
@@ -76,7 +74,7 @@ public class FrackFixer {
     public int[] fixAll() {
         isFixing = continueExecution = true;
         int[] results = new int[3];
-        File[] frackedFiles = FileSystem.GetFilesArray(fileUtils.FrackedFolder, Config.ALLOWED_EXTENSIONS);
+        File[] frackedFiles = FileSystem.GetFilesArray(FileSystem.FrackedFolder, Config.ALLOWED_EXTENSIONS);
 
         CloudCoin coin;
 
@@ -91,7 +89,7 @@ public class FrackFixer {
             }
             updateLog("Unfracking coin " + (i + 1) + " of " + frackedFiles.length);
 
-            coin = fileUtils.loadCoin(frackedFiles[i].toString());
+            coin = FileSystem.loadCoin(frackedFiles[i].toString());
             coin.currentFilename = frackedFiles[i].getName();
             if (coin == null) {
                 updateLog(frackedFiles[i] + " is null, skipping");
@@ -106,20 +104,20 @@ public class FrackFixer {
             CoinUtils.consoleReport(coin);
 
             coin.setFullFilePath(coin.folder + CoinUtils.getDenomination(coin) + ".CloudCoin." + coin.getNn() + "." + coin.getSn());
-            if (fileUtils.BankFolder.equals(coin.folder)) {
+            if (FileSystem.BankFolder.equals(coin.folder)) {
                 this.totalValueToBank++;
-                fileUtils.moveCoin(coin, fileUtils.FrackedFolder, coin.folder, false);
+                FileSystem.moveCoin(coin, FileSystem.FrackedFolder, coin.folder, false);
                 updateLog("CloudCoin was moved to Bank.");
             }
-            else if (fileUtils.CounterfeitFolder.equals(coin.folder)) {
+            else if (FileSystem.CounterfeitFolder.equals(coin.folder)) {
                 this.totalValueToCounterfeit++;
-                fileUtils.moveCoin(coin, fileUtils.FrackedFolder, coin.folder, false);
+                FileSystem.moveCoin(coin, FileSystem.FrackedFolder, coin.folder, false);
                 updateLog("CloudCoin was moved to Counterfeit.");
             }
             else {
                 this.totalValueToFractured++;
-                FileSystem.removeFile(fileUtils.FrackedFolder, frackedFiles[i].getName());
-                this.fileUtils.overWrite(this.fileUtils.FrackedFolder, coin);
+                FileSystem.removeFile(FileSystem.FrackedFolder, frackedFiles[i].getName());
+                FileSystem.overWrite(FileSystem.FrackedFolder, coin);
                 updateLog("CloudCoin was moved back to Fracked folder.");
             }
         }
@@ -199,7 +197,7 @@ public class FrackFixer {
         long ts = after - before;
         updateLog("Time spent fixing RAIDA in milliseconds: " + ts);
 
-        Grader.gradeSimple(coin, fileUtils);
+        Grader.gradeSimple(coin);
         CoinUtils.calcExpirationDate(coin);
         return coin;
     }

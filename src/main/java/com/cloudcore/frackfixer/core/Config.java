@@ -12,8 +12,8 @@ public class Config {
     public static final int EXPIRATION_YEARS = 2;
 
     public static final String TAG_DETECTED = "Detected";
-    public static final String TAG_SUSPECT = "Suspect";
     public static final String TAG_EXPORT = "Export";
+    public static final String TAG_SUSPECT = "Suspect";
 
     public static final String TAG_BANK = "Bank";
     public static final String TAG_FRACKED = "Fracked";

@@ -17,44 +17,24 @@ public class FileSystem {
 
     /* Fields */
 
-    public String RootPath;
+    public static String RootPath = "C:" + File.separator + "CloudCoins-Grader" + File.separator;
 
-    public String DetectedFolder;
-    public String SuspectFolder;
-    public String ExportFolder;
+    public static String DetectedFolder = RootPath + Config.TAG_DETECTED + File.separator;
+    public static String ExportFolder = RootPath + Config.TAG_EXPORT + File.separator;
+    public static String SuspectFolder = RootPath + Config.TAG_SUSPECT + File.separator;
 
-    public String CounterfeitFolder;
-    public String BankFolder;
-    public String FrackedFolder;
-    public String LostFolder;
+    public static String BankFolder = RootPath + Config.TAG_BANK + File.separator;
+    public static String FrackedFolder = RootPath + Config.TAG_FRACKED + File.separator;
+    public static String CounterfeitFolder = RootPath + Config.TAG_COUNTERFEIT + File.separator;
+    public static String LostFolder = RootPath + Config.TAG_LOST + File.separator;
 
-    public String TemplateFolder;
-    public String LogsFolder;
+    public static String LogsFolder = RootPath + Config.TAG_LOGS + File.separator;
 
     public static ArrayList<CloudCoin> importCoins;
     public static ArrayList<CloudCoin> predetectCoins;
 
     public static ArrayList<CloudCoin> bankCoins;
     public static ArrayList<CloudCoin> frackedCoins;
-
-
-    /* Constructor */
-
-    public FileSystem(String RootPath) {
-        this.RootPath = RootPath;
-
-        DetectedFolder = RootPath + File.separator + Config.TAG_DETECTED + File.separator;
-        SuspectFolder = RootPath + File.separator + Config.TAG_SUSPECT + File.separator;
-
-        BankFolder = RootPath + File.separator + Config.TAG_BANK + File.separator;
-        CounterfeitFolder = RootPath + File.separator + Config.TAG_COUNTERFEIT + File.separator;
-        FrackedFolder = RootPath + File.separator + Config.TAG_FRACKED + File.separator;
-
-        LogsFolder = RootPath + File.separator + Config.TAG_LOGS + File.separator;
-
-        LostFolder = RootPath + File.separator + Config.TAG_LOST + File.separator;
-        ExportFolder = RootPath + File.separator + Config.TAG_EXPORT + File.separator;
-    }
 
 
     /* Methods */
@@ -64,7 +44,7 @@ public class FileSystem {
      *
      * @return true if all folders were created or already exist, otherwise false.
      */
-    public boolean createDirectories() {
+    public static boolean createDirectories() {
         try {
             Files.createDirectories(Paths.get(RootPath));
 
@@ -89,7 +69,7 @@ public class FileSystem {
      * @param folder the folder to search for CloudCoin files.
      * @return an ArrayList of all CloudCoins in the specified folder.
      */
-    public ArrayList<CloudCoin> loadFolderCoins(String folder) {
+    public static ArrayList<CloudCoin> loadFolderCoins(String folder) {
         ArrayList<CloudCoin> folderCoins = new ArrayList<>();
 
         String[] filenames = FileUtils.selectFileNamesInFolder(folder);
@@ -135,7 +115,7 @@ public class FileSystem {
      * @param cloudCoins the ArrayList of CloudCoins to delete.
      * @param folder     the folder to delete from.
      */
-    public void removeCoins(ArrayList<CloudCoin> cloudCoins, String folder) {
+    public static void removeCoins(ArrayList<CloudCoin> cloudCoins, String folder) {
         for (CloudCoin coin : cloudCoins) {
             try {
                 Files.deleteIfExists(Paths.get(folder + coin.getFullFilePath()));
@@ -152,7 +132,7 @@ public class FileSystem {
      * @param coins    the ArrayList of CloudCoins.
      * @param filePath the absolute filepath of the CloudCoin file, without the extension.
      */
-    public void writeCoinsToSingleStack(ArrayList<CloudCoin> coins, String filePath) {
+    public static void writeCoinsToSingleStack(ArrayList<CloudCoin> coins, String filePath) {
         Gson gson = Utils.createGson();
         try {
             Stack stack = new Stack(coins.toArray(new CloudCoin[0]));
@@ -169,7 +149,7 @@ public class FileSystem {
      * @param coin     the ArrayList of CloudCoins.
      * @param filePath the absolute filepath of the CloudCoin file, without the extension.
      */
-    public void writeCoinToIndividualStacks(CloudCoin coin, String filePath) {
+    public static void writeCoinToIndividualStacks(CloudCoin coin, String filePath) {
         Stack stack = new Stack(coin);
         try {
             Files.write(Paths.get(filePath + ".stack"), Utils.createGson().toJson(stack).getBytes(StandardCharsets.UTF_8));
@@ -179,7 +159,7 @@ public class FileSystem {
         }
     }
 
-    public CloudCoin loadCoin(String fileName) {
+    public static CloudCoin loadCoin(String fileName) {
         ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromStack(fileName);
 
         if (coins != null)
@@ -191,7 +171,7 @@ public class FileSystem {
         return null;
     }
 
-    public void overWrite(String folder, CloudCoin cc) {
+    public static void overWrite(String folder, CloudCoin cc) {
         String json = Utils.createGson().toJson(cc);
 
         try {
@@ -205,14 +185,14 @@ public class FileSystem {
     /**
      * Loads to memory all of the CloudCoins in the Bank and Fracked folders.
      */
-    public void loadFileSystem() {
+    public static void loadFileSystem() {
         bankCoins = loadFolderCoins(BankFolder);
         frackedCoins = loadFolderCoins(FrackedFolder);
         //importCoins = loadFolderCoins(ImportFolder);
         //predetectCoins = loadFolderCoins(SuspectFolder);
     }
 
-    public void detectPreProcessing() {
+    public static void detectPreProcessing() {
         for (CloudCoin coin : importCoins) {
             String fileName = coin.getFullFilePath();
             int coinExists = 0;
@@ -246,7 +226,7 @@ public class FileSystem {
         });
     }
 
-    public void moveCoin(CloudCoin coin, String sourceFolder, String targetFolder, boolean replaceCoins) {
+    public static void moveCoin(CloudCoin coin, String sourceFolder, String targetFolder, boolean replaceCoins) {
         ArrayList<CloudCoin> folderCoins = loadFolderCoins(targetFolder);
 
         String fileName = (CoinUtils.generateFilename(coin));
@@ -270,20 +250,6 @@ public class FileSystem {
             System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Converts a byte array to a hexadecimal String.
-     *
-     * @param data the byte array.
-     * @return a hexadecimal String.
-     */
-    public String bytesToHexString(byte[] data) {
-        final String HexChart = "0123456789ABCDEF";
-        final StringBuilder hex = new StringBuilder(data.length * 2);
-        for (byte b : data)
-            hex.append(HexChart.charAt((b & 0xF0) >> 4)).append(HexChart.charAt((b & 0x0F)));
-        return hex.toString();
     }
 }
 

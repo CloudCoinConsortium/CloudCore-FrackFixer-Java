@@ -5,23 +5,14 @@ import com.cloudcore.frackfixer.core.FileSystem;
 import com.cloudcore.frackfixer.core.RAIDA;
 import com.cloudcore.frackfixer.utils.SimpleLogger;
 
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import static com.cloudcore.frackfixer.core.RAIDA.updateLog;
 
 public class Main {
 
 
-    /* Constants */
-
-    public static final String rootFolder = Paths.get("C:/CloudCoins-FrackFixer").toAbsolutePath().toString();
-
-
     /* Fields */
 
-    static FileSystem fs;
     public static SimpleLogger logger;
 
     public static int networkNumber = 1;
@@ -50,11 +41,10 @@ public class Main {
      * Sets up the FileSystem instance in the defined rootFolder.
      */
     private static void setup() {
-        fs = new FileSystem(rootFolder);
-        fs.createDirectories();
-        fs.loadFileSystem();
+        FileSystem.createDirectories();
+        FileSystem.loadFileSystem();
 
-        logger = new SimpleLogger(fs.LogsFolder + "logs" +
+        logger = new SimpleLogger(FileSystem.LogsFolder + "logs" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")).toLowerCase() + ".log");
 
         try {
@@ -66,7 +56,6 @@ public class Main {
     }
 
     public static void SetupRAIDA() {
-        RAIDA.fileSystem = new FileSystem(rootFolder);
         try {
             RAIDA.instantiate();
         }
@@ -98,7 +87,7 @@ public class Main {
     }
 
     private static void FrackFix() {
-        FrackFixer frackFixer = new FrackFixer(fs, Config.milliSecondsToTimeOut);
+        FrackFixer frackFixer = new FrackFixer();
         FrackFixer.logger = logger;
         frackFixer.continueExecution = true;
         frackFixer.isFixing = true;
