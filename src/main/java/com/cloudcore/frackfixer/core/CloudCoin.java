@@ -73,6 +73,4 @@ public class CloudCoin {
 
     public void setEd(String ed) { this.ed = ed; }
     public void setPown(String pown) { this.pown = pown; }
-
-    public void setFullFilePath(String fullFilePath) { this.fullFilePath = fullFilePath; }
 }

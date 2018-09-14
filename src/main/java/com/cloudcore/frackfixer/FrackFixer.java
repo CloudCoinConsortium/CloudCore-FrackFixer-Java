@@ -43,7 +43,7 @@ public class FrackFixer {
         } else {
             if (!raida.nodes[triad[0]].isFailed() || !raida.nodes[triad[1]].isFailed() || !raida.nodes[triad[2]].isFailed()) {
                 String[] ans = {cc.getAn().get(triad[0]), cc.getAn().get(triad[1]), cc.getAn().get(triad[2])};
-                raida.getTickets(triad, ans, cc.getNn(), cc.getSn(), CoinUtils.getDenomination(cc), 3000);
+                raida.getTickets(triad, ans, cc.getNn(), cc.getSn(), CoinUtils.getDenomination(cc), Config.milliSecondsToTimeOut);
 
                 if (raida.nodes[triad[0]].hasTicket && raida.nodes[triad[1]].hasTicket && raida.nodes[triad[2]].hasTicket) {
                     if (!continueExecution) {
@@ -89,7 +89,7 @@ public class FrackFixer {
             }
             updateLog("Unfracking coin " + (i + 1) + " of " + frackedFiles.length);
 
-            coin = FileSystem.loadCoin(frackedFiles[i].toString());
+            coin = FileSystem.loadCoin(frackedFiles[i].getParent() + File.separator, frackedFiles[i].getName());
             coin.currentFilename = frackedFiles[i].getName();
             if (coin == null) {
                 updateLog(frackedFiles[i] + " is null, skipping");
@@ -103,7 +103,6 @@ public class FrackFixer {
             }
             CoinUtils.consoleReport(coin);
 
-            coin.setFullFilePath(coin.folder + CoinUtils.getDenomination(coin) + ".CloudCoin." + coin.getNn() + "." + coin.getSn());
             if (FileSystem.BankFolder.equals(coin.folder)) {
                 this.totalValueToBank++;
                 FileSystem.moveCoin(coin, FileSystem.FrackedFolder, coin.folder, false);

@@ -17,10 +17,9 @@ public class FileSystem {
 
     /* Fields */
 
-    public static String RootPath = "C:" + File.separator + "CloudCoins-Grader" + File.separator;
+    public static String RootPath = "C:" + File.separator + "CloudCoins-FrackFixer" + File.separator;
 
     public static String DetectedFolder = RootPath + Config.TAG_DETECTED + File.separator;
-    public static String ExportFolder = RootPath + Config.TAG_EXPORT + File.separator;
     public static String SuspectFolder = RootPath + Config.TAG_SUSPECT + File.separator;
 
     public static String BankFolder = RootPath + Config.TAG_BANK + File.separator;
@@ -48,7 +47,6 @@ public class FileSystem {
         try {
             Files.createDirectories(Paths.get(RootPath));
 
-            Files.createDirectories(Paths.get(ExportFolder));
             Files.createDirectories(Paths.get(BankFolder));
             Files.createDirectories(Paths.get(FrackedFolder));
             Files.createDirectories(Paths.get(LogsFolder));
@@ -79,13 +77,12 @@ public class FileSystem {
             if (index == -1) continue;
 
             extension = filenames[i].substring(index + 1);
-            String fullFilePath = folder + filenames[i];
 
             switch (extension) {
                 case "celeb":
                 case "celebrium":
                 case "stack":
-                    ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromStack(fullFilePath);
+                    ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromStack(folder, filenames[i]);
                     folderCoins.addAll(coins);
                     break;
             }
@@ -159,8 +156,8 @@ public class FileSystem {
         }
     }
 
-    public static CloudCoin loadCoin(String fileName) {
-        ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromStack(fileName);
+    public static CloudCoin loadCoin(String folder, String fileName) {
+        ArrayList<CloudCoin> coins = FileUtils.loadCloudCoinsFromStack(folder, fileName);
 
         if (coins != null)
             System.out.println("loaded coins: " + coins.size());

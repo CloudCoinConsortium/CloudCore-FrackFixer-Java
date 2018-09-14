@@ -12,7 +12,6 @@ public class Config {
     public static final int EXPIRATION_YEARS = 2;
 
     public static final String TAG_DETECTED = "Detected";
-    public static final String TAG_EXPORT = "Export";
     public static final String TAG_SUSPECT = "Suspect";
 
     public static final String TAG_BANK = "Bank";
@@ -25,7 +24,7 @@ public class Config {
 
     /* Fields */
 
-    public static int milliSecondsToTimeOut = 20000;
+    public static int milliSecondsToTimeOut = 5000;
     public static int multiDetectLoad = 200;
     public static int nodeCount = 25;
     public static int passCount = 16;
