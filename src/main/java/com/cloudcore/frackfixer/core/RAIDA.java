@@ -213,8 +213,8 @@ public class RAIDA {
                     }
                     progress = (coinCount - 1) * 100 / totalCoinCount;
                     System.out.println("Minor Progress- " + progress);
-                    FileSystem.writeCoinsToSingleStack(coins, FileSystem.DetectedFolder);
                     FileSystem.removeCoins(coins, FileSystem.SuspectFolder);
+                    FileSystem.saveCoins(coins);
 
                     updateLog(progress + " % of Coins on Network " + networkNumber + " processed.");
                 } catch (Exception e) {
