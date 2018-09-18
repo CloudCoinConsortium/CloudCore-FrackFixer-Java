@@ -42,7 +42,6 @@ public class Main {
      */
     private static void setup() {
         FileSystem.createDirectories();
-        FileSystem.loadFileSystem();
 
         logger = new SimpleLogger(FileSystem.LogsFolder + "logs" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")).toLowerCase() + ".log");

@@ -39,8 +39,6 @@ public class CloudCoin {
 
     public transient String currentFilename;
 
-    private transient String fullFilePath;
-
 
     /* Methods */
 
@@ -57,6 +55,7 @@ public class CloudCoin {
         if (null != getPown()) builder.append(", pown:").append(getPown());
         if (null != getAoid()) builder.append(", aoid:").append(getAoid().toString());
         if (null != getAn()) builder.append(", an:").append(getAn().toString());
+        if (null != pan) builder.append(", pan:").append(Arrays.toString(pan));
         return builder.toString();
     }
 
@@ -69,7 +68,7 @@ public class CloudCoin {
     public String getEd() { return ed; }
     public String getPown() { return pown; }
     public ArrayList<String> getAoid() { return aoid; }
-    public String getFullFilePath() { return fullFilePath; }
+    public String getFullFilePath() { return folder + currentFilename; }
 
     public void setEd(String ed) { this.ed = ed; }
     public void setPown(String pown) { this.pown = pown; }

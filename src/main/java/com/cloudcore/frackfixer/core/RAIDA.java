@@ -23,7 +23,6 @@ public class RAIDA {
     public static RAIDA mainNetwork;
     public static RAIDA activeRAIDA;
 
-    public static FileSystem fileSystem;
     public static SimpleLogger logger;
 
     public static ArrayList<RAIDA> networks = new ArrayList<>();
@@ -142,11 +141,10 @@ public class RAIDA {
 
     public static CompletableFuture<Object> processNetworkCoins(int networkNumber, boolean changeANS) {
         return CompletableFuture.supplyAsync(() -> {
-            fileSystem.loadFileSystem();
-            fileSystem.detectPreProcessing();
+            FileSystem.detectPreProcessing();
 
             System.out.println("Getting coins...");
-            ArrayList<CloudCoin> folderSuspectCoins = fileSystem.loadFolderCoins(fileSystem.SuspectFolder);
+            ArrayList<CloudCoin> folderSuspectCoins = FileSystem.loadFolderCoins(FileSystem.SuspectFolder);
             ArrayList<CloudCoin> suspectCoins = new ArrayList<>();
             for (CloudCoin oldPredetectCoin : folderSuspectCoins) {
                 if (networkNumber == oldPredetectCoin.getNn()) {
@@ -215,8 +213,8 @@ public class RAIDA {
                     }
                     progress = (coinCount - 1) * 100 / totalCoinCount;
                     System.out.println("Minor Progress- " + progress);
-                    fileSystem.writeCoinsToSingleStack(coins, fileSystem.DetectedFolder);
-                    fileSystem.removeCoins(coins, fileSystem.SuspectFolder);
+                    FileSystem.writeCoinsToSingleStack(coins, FileSystem.DetectedFolder);
+                    FileSystem.removeCoins(coins, FileSystem.SuspectFolder);
 
                     updateLog(progress + " % of Coins on Network " + networkNumber + " processed.");
                 } catch (Exception e) {

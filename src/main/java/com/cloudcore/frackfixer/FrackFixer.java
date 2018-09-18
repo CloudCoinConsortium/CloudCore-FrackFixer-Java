@@ -5,6 +5,7 @@ import com.cloudcore.frackfixer.utils.CoinUtils;
 import com.cloudcore.frackfixer.utils.SimpleLogger;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class FrackFixer {
 
@@ -15,10 +16,6 @@ public class FrackFixer {
     
     private RAIDA raida;
 
-    private int totalValueToBank;
-    private int totalValueToFractured;
-    private int totalValueToCounterfeit;
-
     public boolean continueExecution = true;
     public boolean isFixing = false;
 
@@ -27,9 +24,6 @@ public class FrackFixer {
 
     public FrackFixer() {
         raida = RAIDA.getInstance();
-        totalValueToBank = 0;
-        totalValueToCounterfeit = 0;
-        totalValueToFractured = 0;
     }
 
 
@@ -72,31 +66,30 @@ public class FrackFixer {
     /* PUBLIC METHODS */
 
     public int[] fixAll() {
+        int totalValueToBank = 0, totalValueToFractured = 0, totalValueToCounterfeit = 0;
         isFixing = continueExecution = true;
         int[] results = new int[3];
-        File[] frackedFiles = FileSystem.GetFilesArray(FileSystem.FrackedFolder, Config.ALLOWED_EXTENSIONS);
+        ArrayList<CloudCoin> coins = FileSystem.loadFolderCoins(FileSystem.FrackedFolder);
 
-        CloudCoin coin;
-
-        if (frackedFiles.length < 0)
+        if (coins.size() <= 0)
             updateLog("You have no fracked coins.");
 
-        updateLog("Fixing fracked coins: " + frackedFiles.length);
-        for (int i = 0; i < frackedFiles.length; i++) {
+        updateLog("Fixing fracked coins: " + coins.size());
+        for (int i = 0; i < coins.size(); i++) {
             if (!continueExecution) {
                 updateLog("Aborting Fix 1");
                 break;
             }
-            updateLog("Unfracking coin " + (i + 1) + " of " + frackedFiles.length);
+            updateLog("Unfracking coin " + (i + 1) + " of " + coins.size());
 
-            coin = FileSystem.loadCoin(frackedFiles[i].getParent() + File.separator, frackedFiles[i].getName());
-            coin.currentFilename = frackedFiles[i].getName();
+            CloudCoin coin = coins.get(i);
             if (coin == null) {
-                updateLog(frackedFiles[i] + " is null, skipping");
+                updateLog("CloudCoin " + i + " is null, skipping");
                 continue;
             }
             CoinUtils.consoleReport(coin);
             coin = fixCoin(coin);
+            coins.set(i, coin); // TODO: get rid of safety check
             if (!continueExecution) {
                 updateLog("Aborting Fix 2");
                 break;
@@ -104,26 +97,24 @@ public class FrackFixer {
             CoinUtils.consoleReport(coin);
 
             if (FileSystem.BankFolder.equals(coin.folder)) {
-                this.totalValueToBank++;
-                FileSystem.moveCoin(coin, FileSystem.FrackedFolder, coin.folder, false);
+                totalValueToBank++;
                 updateLog("CloudCoin was moved to Bank.");
             }
             else if (FileSystem.CounterfeitFolder.equals(coin.folder)) {
-                this.totalValueToCounterfeit++;
-                FileSystem.moveCoin(coin, FileSystem.FrackedFolder, coin.folder, false);
+                totalValueToCounterfeit++;
                 updateLog("CloudCoin was moved to Counterfeit.");
             }
             else {
-                this.totalValueToFractured++;
-                FileSystem.removeFile(FileSystem.FrackedFolder, frackedFiles[i].getName());
-                FileSystem.overWrite(FileSystem.FrackedFolder, coin);
+                totalValueToFractured++;
                 updateLog("CloudCoin was moved back to Fracked folder.");
             }
+            FileSystem.removeCoin(coin, FileSystem.FrackedFolder);
+            FileSystem.saveCoin(coin);
         }
 
-        results[0] = this.totalValueToBank;
-        results[1] = this.totalValueToCounterfeit; // System.out.println("Counterfeit and Moved to trash: "+totalValueToCounterfeit);
-        results[2] = this.totalValueToFractured; // System.out.println("Fracked and Moved to Fracked: "+ totalValueToFractured);
+        results[0] = totalValueToBank;
+        results[1] = totalValueToCounterfeit; // System.out.println("Counterfeit and Moved to trash: "+totalValueToCounterfeit);
+        results[2] = totalValueToFractured; // System.out.println("Fracked and Moved to Fracked: "+ totalValueToFractured);
         isFixing = false;
         continueExecution = true;
         updateLog("Finished Frack Fixing. Fixed " + totalValueToBank + " CloudCoins and moved them into Bank Folder");
