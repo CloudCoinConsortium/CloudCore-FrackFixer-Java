@@ -5,7 +5,7 @@ public class Config {
 
     /* Constant Fields */
 
-    public static final String[] ALLOWED_EXTENSIONS = new String[] { ".stack", ".jpeg", ".chest", ".bank", ".jpg",".celebrium",".celeb",".csv" };
+    public static final String[] ALLOWED_EXTENSIONS = new String[] { ".stack" };
 
     public static final String URL_DIRECTORY = "http://michael.pravoslavnye.ru/";
 

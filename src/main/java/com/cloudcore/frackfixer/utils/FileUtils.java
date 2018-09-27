@@ -16,12 +16,6 @@ import java.util.Random;
 public class FileUtils {
 
 
-    /* Fields */
-
-    private static Random random = new Random();
-    private static final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-
     /* Methods */
 
     /**
@@ -43,28 +37,6 @@ public class FileUtils {
         }
         while (Files.exists(Paths.get(folder + newFilename + extension)));
         return newFilename + extension;
-    }
-
-    public static String ensureFilepathUnique(String filename, String extension, String folder) {
-        if (!Files.exists(Paths.get(folder + filename + extension)))
-            return folder + filename + extension;
-
-        filename = filename + '.';
-        String newFilename;
-        int loopCount = 0;
-        do {
-            newFilename = filename + '.' + Integer.toString(++loopCount);
-        }
-        while (Files.exists(Paths.get(folder + newFilename + extension)));
-        return folder + newFilename + extension;
-    }
-
-    public static String randomString(int length) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            builder.append(chars.charAt(random.nextInt(chars.length())));
-        }
-        return builder.toString();
     }
 
     /**

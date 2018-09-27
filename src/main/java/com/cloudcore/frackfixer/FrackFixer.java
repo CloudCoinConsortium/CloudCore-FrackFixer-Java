@@ -108,8 +108,7 @@ public class FrackFixer {
                 totalValueToFractured++;
                 updateLog("CloudCoin was moved back to Fracked folder.");
             }
-            FileSystem.removeCoin(coin, FileSystem.FrackedFolder);
-            FileSystem.saveCoin(coin);
+            FileSystem.moveCoin(coin, FileSystem.FrackedFolder, coin.folder);
         }
 
         results[0] = totalValueToBank;
