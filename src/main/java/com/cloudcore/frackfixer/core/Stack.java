@@ -19,8 +19,4 @@ public class Stack {
         cc = new CloudCoin[1];
         cc[0] = coin;
     }
-
-    public Stack(CloudCoin[] coins) {
-        cc = coins;
-    }
 }
