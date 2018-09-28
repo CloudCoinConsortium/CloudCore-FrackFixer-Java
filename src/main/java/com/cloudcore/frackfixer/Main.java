@@ -14,8 +14,6 @@ public class Main {
 
     public static SimpleLogger logger;
 
-    public static int networkNumber = 1;
-
 
     /* Methods */
 
@@ -53,37 +51,6 @@ public class Main {
         }
     }
 
-    public static void SetupRAIDA() {
-        try {
-            RAIDA.instantiate();
-        }
-        catch(Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
-        }
-        if (RAIDA.networks.size() == 0) {
-            updateLog("No Valid Network found.Quitting!!");
-            System.exit(1);
-        }
-        updateLog(RAIDA.networks.size() + " Networks found.");
-        RAIDA raida = RAIDA.networks.get(0);
-        for (RAIDA r : RAIDA.networks)
-            if (networkNumber == r.networkNumber) {
-                raida = r;
-                break;
-            }
-
-        RAIDA.activeRAIDA = raida;
-        if (raida == null) {
-            updateLog("Selected Network Number not found. Quitting.");
-            System.exit(0);
-        }
-        else {
-            updateLog("Network Number set to " + networkNumber);
-        }
-    }
-
     private static void FrackFix() {
         FrackFixer frackFixer = new FrackFixer();
         FrackFixer.logger = logger;
@@ -91,10 +58,5 @@ public class Main {
         frackFixer.isFixing = true;
         frackFixer.fixAll();
         frackFixer.isFixing = false;
-    }
-
-    public static void updateLog(String message) {
-        System.out.println(message);
-        logger.Info(message);
     }
 }

@@ -198,13 +198,4 @@ public class FrackFixer {
         System.out.println(message);
         logger.Info(message);
     }
-
-    /**
-     * Sends a message to the SimpleLogger.
-     *
-     * @param message a log message.
-     */
-    private void updateLogNoPrint(String message) {
-        logger.appendLog(message);
-    }
 }

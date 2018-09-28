@@ -47,15 +47,6 @@ public class SimpleLogger {
     }
 
     /**
-     * Log a message to the master log.
-     *
-     * @param text the text to append to the log.
-     */
-    public void appendLog(String text) {
-        logsRecord.append(text).append(System.lineSeparator());
-    }
-
-    /**
      * Log an error message to the master log.
      *
      * @param text               the text to append to the log.

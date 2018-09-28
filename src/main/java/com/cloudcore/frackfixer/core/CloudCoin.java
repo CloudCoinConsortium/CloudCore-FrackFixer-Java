@@ -68,7 +68,6 @@ public class CloudCoin {
     public String getEd() { return ed; }
     public String getPown() { return pown; }
     public ArrayList<String> getAoid() { return aoid; }
-    public String getFullFilePath() { return folder + currentFilename; }
 
     public void setEd(String ed) { this.ed = ed; }
     public void setPown(String pown) { this.pown = pown; }

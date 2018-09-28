@@ -5,8 +5,6 @@ public class Config {
 
     /* Constant Fields */
 
-    public static final String[] ALLOWED_EXTENSIONS = new String[] { ".stack" };
-
     public static final String URL_DIRECTORY = "http://michael.pravoslavnye.ru/";
 
     public static final int EXPIRATION_YEARS = 2;

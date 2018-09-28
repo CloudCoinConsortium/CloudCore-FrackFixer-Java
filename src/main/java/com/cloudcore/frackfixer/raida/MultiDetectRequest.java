@@ -1,5 +1,7 @@
 package com.cloudcore.frackfixer.raida;
 
+import com.cloudcore.frackfixer.core.Config;
+
 public class MultiDetectRequest {
 
 
