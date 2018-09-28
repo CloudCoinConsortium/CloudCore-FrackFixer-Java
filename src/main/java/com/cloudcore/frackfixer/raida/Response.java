@@ -1,4 +1,4 @@
-package com.cloudcore.frackfixer.core;
+package com.cloudcore.frackfixer.raida;
 
 @SuppressWarnings({"ALL", "unused"})
 public class Response {

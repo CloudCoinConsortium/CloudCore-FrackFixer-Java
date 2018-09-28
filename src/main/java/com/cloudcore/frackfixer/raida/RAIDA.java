@@ -1,5 +1,8 @@
-package com.cloudcore.frackfixer.core;
+package com.cloudcore.frackfixer.raida;
 
+import com.cloudcore.frackfixer.core.CloudCoin;
+import com.cloudcore.frackfixer.core.Config;
+import com.cloudcore.frackfixer.core.FileSystem;
 import com.cloudcore.frackfixer.utils.CoinUtils;
 import com.cloudcore.frackfixer.utils.SimpleLogger;
 import com.cloudcore.frackfixer.utils.Utils;
@@ -20,20 +23,19 @@ public class RAIDA {
 
     /* Fields */
 
-    public static RAIDA mainNetwork;
-    public static RAIDA activeRAIDA;
-
     public static SimpleLogger logger;
 
+    public static RAIDA mainNetwork;
+    public static RAIDA activeRAIDA;
     public static ArrayList<RAIDA> networks = new ArrayList<>();
+
     public Node[] nodes = new Node[Config.nodeCount];
-    public Response[] responseArray = new Response[Config.nodeCount];
+
     public MultiDetectRequest multiRequest;
+    public ArrayList<CloudCoin> coins;
+    public Response[] responseArray = new Response[Config.nodeCount];
 
     public int networkNumber = 1;
-
-
-    public ArrayList<CloudCoin> coins;
 
 
     /* Constructors */

@@ -151,6 +151,5 @@ public class CoinUtils {
         String report = "   Authenticity Report SN #" + String.format("{0,8}", cc.getSn()) + ", Denomination: " + String.format("{0,3}", getDenomination(cc)) + "  ";
 
         return pownArray;
-
     }
 }

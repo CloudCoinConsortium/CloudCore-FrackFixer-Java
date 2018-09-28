@@ -1,4 +1,4 @@
-package com.cloudcore.frackfixer.core;
+package com.cloudcore.frackfixer.raida;
 
 import com.cloudcore.frackfixer.utils.Utils;
 import com.google.gson.Gson;
@@ -250,7 +250,6 @@ public class Node {
     }
 
     /**
-     * Method GET TICKET
      * Returns an ticket from a trusted server
      *
      * @param nn  int that is the coin's Network Number

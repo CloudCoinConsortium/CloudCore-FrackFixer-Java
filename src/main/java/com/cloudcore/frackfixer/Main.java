@@ -1,8 +1,7 @@
 package com.cloudcore.frackfixer;
 
-import com.cloudcore.frackfixer.core.Config;
 import com.cloudcore.frackfixer.core.FileSystem;
-import com.cloudcore.frackfixer.core.RAIDA;
+import com.cloudcore.frackfixer.raida.RAIDA;
 import com.cloudcore.frackfixer.utils.SimpleLogger;
 
 import java.time.LocalDateTime;

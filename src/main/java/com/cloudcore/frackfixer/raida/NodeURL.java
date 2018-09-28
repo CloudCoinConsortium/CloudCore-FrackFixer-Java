@@ -1,4 +1,4 @@
-package com.cloudcore.frackfixer.core;
+package com.cloudcore.frackfixer.raida;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
