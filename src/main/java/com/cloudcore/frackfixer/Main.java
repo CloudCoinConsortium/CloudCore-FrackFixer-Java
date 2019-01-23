@@ -33,15 +33,15 @@ public class Main {
             FileSystem.changeRootPath(args[0]);
         }
 
-        if (0 != FileUtils.selectFileNamesInFolder(FileSystem.SuspectFolder).length) {
+        if (0 != FileUtils.selectFileNamesInFolder(FileSystem.FrackedFolder).length) {
             setup();
             FrackFix();
             exitIfSingleRun();
             resetInstance();
         }
 
-        FolderWatcher watcher = new FolderWatcher(FileSystem.SuspectFolder);
-        System.out.println("Watching folders at " + FileSystem.SuspectFolder + "...");
+        FolderWatcher watcher = new FolderWatcher(FileSystem.FrackedFolder);
+        System.out.println("Watching folders at " + FileSystem.FrackedFolder + "...");
         boolean detectingFiles = false;
         long timeWaitingForFilesToBeWritten = 0;
 

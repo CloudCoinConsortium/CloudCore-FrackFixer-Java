@@ -189,8 +189,8 @@ public class FrackFixer {
         long ts = after - before;
         updateLog("Time spent fixing RAIDA in milliseconds: " + ts);
 
-        Grader.gradeSimple(coin);
         CoinUtils.calcExpirationDate(coin);
+        Grader.gradeSimple(coin);
         return coin;
     }
 
