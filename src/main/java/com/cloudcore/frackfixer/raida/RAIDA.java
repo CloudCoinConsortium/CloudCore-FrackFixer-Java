@@ -58,6 +58,11 @@ public class RAIDA {
         return new RAIDA();
     }
 
+    public static void resetInstance() {
+        activeRAIDA = null;
+        networks.clear();
+    }
+
     public void getTickets(int[] triad, String[] ans, int nn, int sn, int denomination, int milliSecondsToTimeOut) {
         CompletableFuture task = getTicket(0, triad[0], nn, sn, ans[0], denomination);
         CompletableFuture task2 = getTicket(1, triad[1], nn, sn, ans[1], denomination);

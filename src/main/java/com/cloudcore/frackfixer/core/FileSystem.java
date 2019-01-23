@@ -65,6 +65,21 @@ public class FileSystem {
         return true;
     }
 
+    public static void changeRootPath(String rootPath) {
+        RootPath = rootPath;
+
+        DetectedFolder = RootPath + Config.TAG_DETECTED + File.separator;
+        ImportFolder = RootPath + Config.TAG_IMPORT + File.separator;
+        SuspectFolder = RootPath + Config.TAG_SUSPECT + File.separator;
+
+        BankFolder = RootPath + Config.TAG_BANK + File.separator;
+        FrackedFolder = RootPath + Config.TAG_FRACKED + File.separator;
+        CounterfeitFolder = RootPath + Config.TAG_COUNTERFEIT + File.separator;
+        LostFolder = RootPath + Config.TAG_LOST + File.separator;
+
+        LogsFolder = RootPath + Config.TAG_LOGS + File.separator;
+    }
+
 
     /**
      * Loads all CloudCoins from a specific folder.
